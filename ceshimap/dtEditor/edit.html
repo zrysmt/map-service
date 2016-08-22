@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>修改房源信息</title>
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="http://cdn.datatables.net/1.10.7/css/jquery.dataTables.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.2.1/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/select/1.2.0/css/select.dataTables.min.css">
+    <link rel="stylesheet" href="http://www.21changfang.com/file/script/editor/editor.dataTables.min.css">
+    <style type="text/css">
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: "Microsoft YaHei"
+    }
+    
+    #edit-top-bar {
+        z-index: 999;
+        padding: 10px;
+        color: #fff;
+        font-family: "Microsoft YaHei";
+        font-size: 16px;
+        background-color: #008B00;
+    }
+    
+    #gotoCeshimap {
+        float: right;
+        margin-right: 20px;
+        margin-top: -9px;
+        padding: 9px;
+    }
+    
+    #gotoCeshimap a,
+    #addPage a {
+        color: #fff;
+        text-decoration: none;
+    }
+    
+    #addPage {
+        float: right;
+        margin-right: 40px;
+        margin-top: -9px;
+        padding: 9px;
+    }
+    
+    #addPage:hover,
+    #gotoCeshimap:hover {
+        background-color: #00a000;
+    }
+    
+    #back {
+        float: right;
+        margin-right: 20px;
+    }
+    
+    #back a {
+        color: #fff;
+    }
+    /*dataTable*/
+    
+    .maintenance {
+        background-color: #fff;
+        width: 91%;
+        padding: 15px;
+        margin: 0 auto;
+        margin-top: 10px;
+        min-height: 460px;
+    }
+    
+    #myTable {
+        width: 100%;
+    }
+    
+    #myTable th,
+    #myTable tr {
+        font-size: 14px;
+        text-align: center;
+    }
+    
+    .dt-buttons {
+        margin-right: 20px;
+        margin-top: -5px;
+    }
+    </style>
+</head>
+
+<body>
+    <div id="edit-top-bar">
+        <span>&nbsp&nbsp修改厂房信息</span>
+        <span id="back"><a href="http://www.21changfang.com/">返回首页</a></span>
+        <span id="addPage"><a href="http://www.21changfang.com/ceshimap/add.php" target="blank">添加厂房</a> </span>
+        <span id="gotoCeshimap"><a href="http://www.21changfang.com/ceshimap/" target="blank">查看地图</a> </span>
+    </div>
+    <div class='maintenance'>
+        <table id="myTable" class="display">
+        </table>
+    </div>
+    <!-- jQuery -->
+    <script type="text/javascript" charset="utf8" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <!-- DataTables -->
+    <script type="text/javascript" charset="utf8" src="http://cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.2.1/js/dataTables.buttons.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/select/1.2.0/js/dataTables.select.min.js"></script>
+    <script type="text/javascript" src="http://www.21changfang.com/file/script/editor/dataTables.editor.min.js"></script>
+    <script type="text/javascript">
+    var editor;
+    $(document).ready(function() {
+        /*var tData = [{
+            "id": "1",
+            "province": "上海市",
+            "city": "上海市",
+            "district": "闵行区",
+            "town": "吴泾镇",
+            "address": "零号湾",
+            "rent": "出租",
+            "location": "121.430502,31.029957",
+            "area": "24",
+            "sellingPrice": "10"
+        }, {
+            "id": "2",
+            "province": "上海市",
+            "city": "上海市",
+            "district": "金山区",
+            "town": "廊下镇",
+            "address": "金山区廊下镇",
+            "rent": "出租",
+            "location": "121.430502,31.029957",
+            "area": "25",
+            "sellingPrice": "5"
+        }];*/
+        var thName = [{
+            data: null,
+            defaultContent: '',
+            className: 'select-checkbox',
+            orderable: false
+        }, {
+            title: "序号",
+            data: "id"
+        }, {
+            title: "省",
+            data: "province"
+        }, {
+            title: "城市",
+            data: "city"
+        }, {
+            title: "区",
+            data: "district",
+            editField: "district"
+        }, {
+            title: "镇",
+            data: "town",
+            editField: "town"
+        }, {
+            title: "地址",
+            data: "address",
+            editField: "address"
+        }, {
+            title: "出租信息",
+            data: "rent",
+            editField: "rent"
+        }, {
+            title: "位置",
+            data: "location",
+            editField: "location"
+        }, {
+            title: "面积",
+            data: "area",
+            editField: "area"
+        }, {
+            title: "价格",
+            data: "sellingPrice",
+            editField: "sellingPrice"
+        }];
+
+        editor = new $.fn.dataTable.Editor({
+            ajax: "editDB.php",
+            table: "#myTable",
+            // idSrc: "id",
+            fields: [{
+                label: "District:",
+                name: "district"
+            }, {
+                label: "Town:",
+                name: "town"
+            }, {
+                label: "Address:",
+                name: "address"
+            }, {
+                label: "Rent:",
+                name: "rent"
+            }, {
+                label: "Location",
+                name: "location"
+            }, {
+                label: "Area:",
+                name: "area",
+                // type: "select"
+            }, {
+                label: 'SellingPrice',
+                name: "sellingPrice"
+            }]
+        });
+
+        // Activate an inline edit on click of a table cell
+        $('#myTable').on('click', 'tbody td:not(:first-child)', function(e) {
+            editor.inline(this);
+        });
+        var myTbl = $('#myTable').DataTable({
+            ajax: "editDB.php",
+            language: {
+                "sProcessing": "处理中...",
+                "sLengthMenu": "显示 _MENU_ 项结果",
+                "sZeroRecords": "没有匹配结果",
+                "sInfo": "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+                "sInfoEmpty": "显示第 0 至 0 项结果，共 0 项",
+                "sInfoFiltered": "(由 _MAX_ 项结果过滤)",
+                "sInfoPostFix": "",
+                "sSearch": "搜索:",
+                "sUrl": "",
+                "sEmptyTable": "表中数据为空",
+                "sLoadingRecords": "载入中...",
+                "sInfoThousands": ",",
+                "oPaginate": {
+                    "sFirst": "首页",
+                    "sPrevious": "上页",
+                    "sNext": "下页",
+                    "sLast": "末页"
+                },
+                "oAria": {
+                    "sSortAscending": ": 以升序排列此列",
+                    "sSortDescending": ": 以降序排列此列"
+                }
+            },
+            dom: 'Bflrtip', //B指的是button
+            // buttons: ['excel', 'pdf'],
+            // data: tData,
+            columns: thName,
+            // serverSide:true,//服务器端渲染
+            select: {
+                style: 'os',
+                selector: 'td:first-child'
+            },
+            buttons: [/*{
+                extend: "create",
+                editor: editor
+            },*/ {
+                extend: "edit",
+                editor: editor
+            }, {
+                extend: "remove",
+                editor: editor
+            }]
+        });
+
+        myTbl.select();//官网上没这个是错误的
+    });
+    </script>
+</body>
+
+</html>

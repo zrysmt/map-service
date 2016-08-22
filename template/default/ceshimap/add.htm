@@ -1,0 +1,379 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+    <title> - 添加厂房信息 - </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <style type="text/css">
+    body {
+        font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+        font-size: 15px;
+        margin: 0;
+        padding: 0;
+    }
+    
+    p,
+    h1,
+    form,
+    button {
+        border: 0;
+        margin: 0;
+        padding: 0;
+    }
+    
+    #add-top-bar {
+        z-index: 999;
+        padding: 10px;
+        color: #fff;
+        font-family: "Microsoft YaHei";
+        font-size: 16px;
+        background-color: #008B00;
+    }
+    
+    /* ———– My Form ———– */
+    
+    .myform {
+        width: 98.5%;
+        padding-left: 12px;
+    }
+    /* ———– stylized ———– */
+    
+    #stylized {
+        border: solid 1px #b7ddf2;
+        background: #ebf4fb;
+    }
+
+    #stylized label {
+        font-weight: bold;
+        margin-top: 5px;
+    }
+    
+    .stylized input,
+    .stylized select {
+        /*float: left;*/
+        font-size: 15px;
+        padding: 4px 2px;
+        border: solid 1px #aacfe4;
+        width: 180px;
+        margin: 2px 10px 5px 10px;
+    }
+    
+    .input-small {
+        width: 60px !important;
+    }
+    
+    #stylized .getloc-btn {
+        width: 100px;
+        font-weight: bold;
+    }
+    
+    .getloc-btn:hover {
+        cursor: pointer;
+    }
+    
+    #stylized .sub {
+        float: right;
+        width: 80px;
+        /*margin-left: 10%;*/
+    }
+    
+    #container {
+        margin: 0 auto;
+        /*position: absolute;*/
+        margin-top: 2px;
+        width: 100%;
+        height: 700px;
+        border: 1px solid #ebf4fb;
+        overflow: hidden;
+    }
+    
+    #getPos {
+        position: relative;
+        top: 3px;
+        /*left: 400px;*/
+        /*margin-top: 10px;*/
+    }
+    
+    #getPos:hover {
+        cursor: pointer;
+    }
+    
+    #pos-label {
+        margin-left: 25px;
+    }
+    
+    #rentSetting {
+        position: relative;
+        top: 3px;
+    }
+    
+    #rentSetting:hover {
+        cursor: pointer;
+    }
+    #town{
+        width:120px !important;
+    }
+    .sperate-line {
+        color: #336600;
+        /*font-size: 20px;*/
+        /*line-height: 1.5;*/
+        margin: -3px 5px 0 5px;
+    }
+    #gotoCeshimap{
+        float: right;
+        margin-right: 20px;
+        margin-top: -9px;
+        padding:9px;
+    
+    }
+    #gotoCeshimap a,
+    #editPage a{
+        color: #fff;
+        text-decoration: none;
+    }
+    #editPage{
+        float: right;
+        margin-right: 40px;
+        margin-top: -9px;
+        padding:9px;
+    }
+    #editPage:hover,
+    #gotoCeshimap:hover{
+        background-color: #00a000;
+    }
+    #back {
+        float: right;
+        margin-right: 20px;
+    }
+    #back a{
+        color: #fff;
+
+    }
+    @media screen and (min-height: 1000px) and (min-width: 1200px) {
+        #container{
+            height: 1000px;
+        }
+        #stylized .sub{
+            margin-right: 10%;
+        }
+    }
+    @media screen and (min-width: 1439px) {
+        #container{
+            height: 1440px;
+        }
+    }
+    </style>
+</head>
+
+<body>
+    <div id="add-top-bar">
+        <span>&nbsp&nbsp添加厂房信息</span>
+        <span id="back"><a href="<?php echo AJ_PATH;?>">返回首页</a></span>
+        <span id="editPage"><a href="<?php echo AJ_PATH;?>ceshimap/dtEditor/edit.html" target="blank">修改房源</a> </span>
+        <span id="gotoCeshimap"><a href="<?php echo AJ_PATH;?>ceshimap/" target="blank">查看地图</a> </span>
+    </div>
+    <div id="stylized" class="myform stylized">
+        <form id="form" name="form" method="post" action="<?php echo AJ_PATH;?>/ceshimap/add2DB.php">
+            <label>地址信息:
+                <!-- <span class="small"></span> -->
+            </label>
+            <input type="text" name="address" id="address" placeholder="请输入地址信息..." value="" />
+            <input type="button" value="获取坐标" class="getloc-btn" onclick="searchByStationName();" />
+            <!-- <img src="<?php echo AJ_PATH;?>file/image/postion.png" id="getPos" alt="定位" title="定位在地图上获取坐标信息"> -->
+            <img src="<?php echo AJ_PATH;?>file/image/postion.png" id="getPos" alt="定位" title="定位在地图上获取坐标信息">
+            <label id="pos-label">坐标:
+            </label>
+            <input type="text" name="location" id="location" placeholder="输入地址信息,点击获取地址后获取" value="" />
+            <label>出租信息:
+            </label>
+            <!-- <input type="text" name="rent" id="rent" placeholder="请输入出租信息..." value="" /> -->
+            <select name="rent" id="rent" class="input-small" >
+                {loop $A $key $val}
+                <option value="{$val['rent']}">{$val['rent']}</option>
+                {/loop}
+            </select>
+            <!-- <img src="<?php echo AJ_PATH;?>file/image/seting.png" id="rentSetting" alt="设置" title="修改,添加出租信息"> -->
+            <img src="<?php echo AJ_PATH;?>file/image/seting.png" id="rentSetting" alt="设置" title="修改,添加出租信息">
+            <div class="spacer"></div>
+            <label>省份:</label>
+            <input type="text" id="province" class="input-small" />
+            <label>&nbsp&nbsp城市:</label>
+            <input type="text" id="city" class="input-small" />
+            <label>&nbsp&nbsp区:</label>
+            <input type="text" id="district" class="input-small" />
+            <label>&nbsp&nbsp镇:</label>
+            <input type="text" id="town" class="input-small" />
+            <label class="sperate-line">|</label>
+            <label>&nbsp&nbsp厂房面积:</label>
+            <input type="text" id="area" class="input-small" />
+            <label>&nbsp&nbsp售价:</label>
+            <input type="text" id="sellingPrice" class="input-small" />
+            <input class="sub" id="sub" type="button" value="提交" />
+
+        </form>
+    </div>
+    <!-- <div id="rentSettingDiv"></div> -->
+    <div id="container"> </div>
+    <script src="http://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=TPrSyQXhBwEjWzfXzPw3iPXxqISq2idO"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/library/MarkerTool/1.2/src/MarkerTool.js"></script>
+    <script type="text/javascript">
+    var map = new BMap.Map("container");
+    map.centerAndZoom("上海", 12);
+    map.setMapType(BMAP_HYBRID_MAP);
+    // map.enableContinuousZoom(); //启用地图惯性拖拽，默认禁用
+    map.enableScrollWheelZoom(); //启用滚轮放大缩小，默认禁用
+    map.enableKeyboard();
+
+    map.addControl(new BMap.NavigationControl()); //添加默认缩放平移控件
+    // map.addControl(new BMap.OverviewMapControl({
+    //     isOpen: true,
+    //     anchor: BMAP_ANCHOR_BOTTOM_RIGHT
+    // })); //右下角，打开
+    var ctrl_ove = new BMap.OverviewMapControl({
+        anchor: BMAP_ANCHOR_BOTTOM_RIGHT,
+        isOpen: 1
+    });
+    map.addControl(ctrl_ove);
+    //向地图中添加比例尺控件
+    var ctrl_sca = new BMap.ScaleControl({
+        anchor: BMAP_ANCHOR_BOTTOM_LEFT
+    });
+    map.addControl(ctrl_sca);
+    // 向地图中添加地图切换控件
+    var ctrl_type = new BMap.MapTypeControl({
+        anchor: BMAP_ANCHOR_TOP_RIGHT
+    });
+    map.addControl(ctrl_type);
+
+    var marker;
+
+    function searchByStationName() {
+        var localSearch = new BMap.LocalSearch(map);
+        localSearch.enableAutoViewport(); //允许自动调节窗体大小
+        map.clearOverlays(); //清空原来的标注
+        var keyword = document.getElementById("address").value;
+        localSearch.setSearchCompleteCallback(function(searchResult) {
+            var poi = searchResult.getPoi(0);
+            document.getElementById("location").value = poi.point.lng + "," + poi.point.lat;
+            serchByPoint(poi.point, 'flag');
+            marker = new BMap.Marker(new BMap.Point(poi.point.lng, poi.point.lat)); // 创建标注，为要查询的地方对应的经纬度
+            marker.enableDragging();
+            map.addOverlay(marker);
+            markerDrager(marker);
+            var content = document.getElementById("address").value + "<br/><br/>经度：" + poi.point.lng + "<br/>纬度：" + poi.point.lat;
+            var infoWindow = new BMap.InfoWindow("<p style='font-size:14px;'>" + content + "</p>");
+            marker.addEventListener("click", function() {
+                this.openInfoWindow(infoWindow);
+            });
+            // marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+        });
+        localSearch.search(keyword, {
+            forceLocal: true
+        });
+    }
+
+    function markerDrager(marker) {
+        marker.addEventListener('dragend', function() {
+            document.getElementById("location").value = marker.point.lng + ',' + marker.point.lat;
+            // console.log(marker.getPostion());
+            serchByPoint(marker.point);
+        });
+    }
+
+    function serchByPoint(point, f) {
+        var arg = Array.prototype.slice.apply(arguments);
+        map.centerAndZoom(point, 19);
+        var geoc = new BMap.Geocoder();
+        geoc.getLocation(point, function(rs) {
+            var addComp = rs.addressComponents;
+            if (!arg[1]) {
+                document.getElementById("address").value = addComp.street + addComp.streetNumber;
+            }
+            $('#province').val(addComp.province);
+            $('#city').val(addComp.city);
+            $('#district').val(addComp.district);
+            if (rs.business) {
+                $('#town').val(rs.business + '镇');
+            }
+        });
+
+    }
+    $('#getPos').click(function(event) {
+        map.clearOverlays();
+        document.getElementById("location").value = '';
+        // var pushpin = new BMap.PushpinTool(map);
+        var mkrTool = new BMapLib.MarkerTool(map, {
+            autoClose: true,
+            followText: "添加标注获取坐标"
+        });
+        mkrTool.open();
+        mkrTool.addEventListener("markend", function(e) {
+            e.marker.enableDragging();
+            markerDrager(e.marker);
+            var markerPoint = e.marker.point;
+            serchByPoint(markerPoint);
+            document.getElementById("location").value = markerPoint.lng + ',' + markerPoint.lat;
+
+        });
+    });
+    /*$('#rentSetting').click(function(event) {
+        var json;
+        {loop $A $key $val}
+            var item = {"rent":"{$val['rent']}","color":"{$val['color']}"};
+        {/loop}
+        $('#rentSettingDiv').html();
+    });*/
+
+
+    $('#sub').click(function() {
+        if ($("#address").val() == '') {
+            alert("地址信息不能为空！");
+            return false;
+        }
+        if ($("#rent").val() == '') {
+            alert("出租信息不能为空！");
+            return false;
+        }
+        if ($("#location").val() == '') {
+            alert("坐标信息不能为空！");
+            return false;
+        }
+        $.post("<?php echo AJ_PATH;?>ceshimap/add2DB.php", {
+            address: $("#address").val(),
+            rent: $("#rent").val(),
+            location: $("#location").val(),
+            province: $("#province").val(),
+            city: $("#city").val(),
+            district: $("#district").val(),
+            town: $("#town").val(),
+            district: $("#district").val(),
+            area: $("#area").val(),
+            sellingPrice: $("#sellingPrice").val()
+        }, function(data) {
+            alert(data);
+        });
+        clearInput();
+
+
+    })
+
+    function clearInput() {
+        // map.centerAndZoom('上海市',12);
+        $("#address").val('');
+        $("#rent").val('');
+        $("#location").val('');
+        $("#area").val('');
+        $("#sellingPrice").val('');
+        $("#province").val('');
+        $("#city").val('');
+        $("#district").val('');
+        $("#town").val('');
+
+    }
+    </script>
+</body>
+
+</html>
