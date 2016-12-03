@@ -10,7 +10,9 @@ $district=trim($_POST["district"]);
 $town=trim($_POST["town"]);
 $area=trim($_POST["area"]);
 $sellingPrice=trim($_POST["sellingPrice"]);
-$result=$db->query("INSERT INTO {$AJ_PRE}ceshimap (address,rent,location,province,city,district,town,area,sellingPrice) VALUES ('$address','$rent','$location','$province','$city','$district','$town','$area','$sellingPrice')"); 
+$updateDate=trim($_POST["updateDate"]);
+
+$result=$db->query("INSERT INTO {$AJ_PRE}ceshimap (address,rent,location,province,city,district,town,area,sellingPrice,updateDate) VALUES ('$address','$rent','$location','$province','$city','$district','$town','$area','$sellingPrice','$updateDate')"); 
 if(!$result)
 echo "添加失败！";
 else

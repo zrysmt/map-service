@@ -3,8 +3,9 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="keywords" content="百度地图,百度地图API，百度地图自定义工具，百度地图所见即所得工具" />
-    <meta name="description" content="百度地图API自定义地图，帮助用户在可视化操作下生成百度地图" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+    <meta name="keywords" content="21厂房网 地图模块" />
+    <meta name="description" content="21厂房网 地图模块" />
     <title>百度地图API自定义地图</title>
     <!--引用百度地图API-->
     <style type="text/css">
@@ -20,12 +21,14 @@
         font-size: 14px;
         font-weight: bold;
         overflow: hidden;
-        padding-right: 13px;
+        margin-top: 7px;
+        margin-bottom: 10px;
         white-space: nowrap
     }
     
     .iw_poi_content {
-        font: 12px arial, sans-serif;
+        font: 14px arial, sans-serif;
+        font-weight: bold;
         overflow: visible;
         padding-top: 4px;
         white-space: -moz-pre-wrap;
@@ -41,247 +44,449 @@
     #top-bar {
         position: relative;
         z-index: 999;
-        padding: 10px;
+        padding-top: 12px;
         color: #fff;
+        font-size: 16px;
         font-family: "微软雅黑";
+        height: 40px;
         background-color: #008B00;
     }
     
-    #addPage{
+    #addPage {
         float: right;
-        margin-right: 20px;
+        margin-right: 0.6rem;
         margin-top: -9px;
-        padding:9px;
-    
+        padding: 9px;
     }
+    
     #addPage a,
-    #editPage a{
+    #editPage a {
         color: #fff;
         text-decoration: none;
     }
-    #editPage{
+    
+    #editPage {
         float: right;
-        margin-right: 40px;
+        margin-right: 1.3rem;
         margin-top: -9px;
-        padding:9px;
+        padding: 9px;
     }
+    
     #editPage:hover,
-    #addPage:hover{
+    #addPage:hover {
         background-color: #00a000;
     }
+    
+    #toolbar {
+        float: right;
+        margin-right: 1.3rem;
+        margin-top: -9px;
+        padding: 9px;
+    }
+    
+    #toolbar img {
+        width: 24px;
+        height: 24px;
+        margin-right: 0.3rem;
+    }
+    
+    #toolbar img:hover {
+        cursor: pointer;
+        background-color: #00a000;
+    }
+    
     #back {
         float: right;
-        margin-right: 20px;
+        margin-right: 0.6rem;
     }
-    #back a{
+    
+    #back a {
         color: #fff;
-
     }
-    @media screen and (min-height: 1000px){
-        #dituContent{
-            height: 1000px;
+    #myPosition{
+        position: fixed;
+        top:85%;
+        left: 3%;
+    }
+    #myPosition:hover{
+        cursor: pointer;
+    }
+    @media screen and (max-width: 320px){
+        #dituContent {
+            height: 440px;
         }
-        #stylized .sub{
+        #top-bar{
+            height: 66px;
+        }
+    }
+    @media screen and (max-width: 479.9px){
+        html{
+             font-size: 50% !important;
+        }
+        #dituContent {
+            height: 440px;
+        }
+        #top-bar .welcome-log{
+            display: none;
+        }
+    }
+    @media screen and (min-width: 480px){
+        html{
+             font-size: 62.5% !important;
+        }
+        #dituContent {
+            height: 750px;
+        }
+        #top-bar .welcome-log{
+            display: none;
+        }
+    }
+    @media screen and (min-width: 640px){
+        html{
+             font-size: 125% !important;
+        }
+        #dituContent {
+            height: 900px;
+        }
+        #top-bar .welcome-log{
+            display: none;
+        }
+    }
+    @media screen and (min-width: 768px) {
+        html{
+             font-size: 150% !important;
+        }
+        #dituContent {
+            height: 980px;
+        }
+        #top-bar .welcome-log{
+            display: inline-block;
+        }
+        #stylized .sub {
             margin-right: 10%;
         }
     }
-    @media screen and (min-width: 1439px) {
-        #dituContent{
-            height: 1440px;
+    
+    @media screen and (min-width: 1024px) {
+        html{
+             font-size: 187.5% !important;
+        }
+        #dituContent {
+            height: 1200px;
+        }
+        #top-bar .welcome-log{
+            display: inline-block;
         }
     }
+    /* @media screen and (min-width: 1280px) {
+        #dituContent {
+           height: 1200px;
+       }
+     } */ 
     </style>
+    <script src="http://www.21changfang.com/skin/default/js/sea.js" type="text/javascript"></script>
     <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=TPrSyQXhBwEjWzfXzPw3iPXxqISq2idO"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/library/DistanceTool/1.2/src/DistanceTool_min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/library/GeoUtils/1.2/src/GeoUtils_min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.js"></script>
     <!-- <script type="text/javascript" src="data:application/octet-stream;base64,KGZ1bmN0aW9uKCl7IHdpbmRvdy5CTWFwX2xvYWRTY3JpcHRUaW1lID0gKG5ldyBEYXRlKS5nZXRUaW1lKCk7IGRvY3VtZW50LndyaXRlKCc8c2NyaXB0IHR5cGU9InRleHQvamF2YXNjcmlwdCIgc3JjPSJodHRwOi8vYXBpLm1hcC5iYWlkdS5jb20vZ2V0c2NyaXB0P3Y9MS40JmFrPSZzZXJ2aWNlcz0mdD0yMDE1MDUyMjA5MzIxNyI+PC9zY3JpcHQ+Jyk7fSkoKTs="></script> -->
 </head>
 
 <body>
     <div id="top-bar">
-        <div class="fl"> <span>您好，</span>{if $username==""}欢迎来到21厂房网！<span class="login"><b>[</b><a href="<?php echo AJ_PATH;?>member/login.php" title="">登陆</a><b>]</b></span>&nbsp;&nbsp;<span><b>[</b><a href="<?php echo AJ_PATH;?>member/register.php" title="">免费注册</a><b>]</b></span>{else}{$username}
-        <span id="back"><a href="<?php echo AJ_PATH;?>">返回首页</a></span>
-        <span id="editPage"><a href="<?php echo AJ_PATH;?>ceshimap/dtEditor/edit.html" target="blank">修改房源</a> </span>
-        <span id="addPage"><a href="<?php echo AJ_PATH;?>ceshimap/add.php" target="blank">添加房源</a> </span>
-        {/if}</div>
+    <div class="fl"> {if $username==""}<span class="welcome-log">欢迎来到21厂房网！<span class="login"><b>[</b><a href="<?php echo AJ_PATH;?>member/login.php" title="">登陆</a><b>]</b></span>&nbsp;&nbsp;<span><b>[</b><a href="<?php echo AJ_PATH;?>member/register.php" title="">免费注册</a><b>]</b></span></span>{else}<span>您好，</span>{$username}{/if}
+
+            <span id="back"><a href="<?php echo AJ_PATH;?>">返回首页</a></span>
+            <span id="editPage"><a href="<?php echo AJ_PATH;?>ceshimap/dtEditor/edit.html" target="blank">修改房源</a> </span>
+            <span id="addPage"><a href="<?php echo AJ_PATH;?>ceshimap/add.php" target="blank">添加房源</a> </span>
+            <div id="toolbar">
+                <img id="getDis" src="<?php echo AJ_PATH;?>file/image/distance.png" alt="测距离" />
+                <img id="getArea" src="<?php echo AJ_PATH;?>file/image/area.png" alt="测面积" />
+            </div>
+        </div>
     </div>
     <!--百度地图容器-->
     <div id="dituContent"></div>
+    <img id="myPosition" src="<?php echo AJ_PATH;?>file/image/myPosition.png" alt="我的位置" />
+
 </body>
 <script type="text/javascript">
-var myBDMap = {
-    init: function(markerArr,distJson) {
-        var self = this;
-        this.markerArr = markerArr;
-        this.createMap(); //创建地图
-        this.setMapEvent(); //设置地图事件
-        this.addMapControl(); //向地图添加控件
+// define(function(require, exports, module) {
 
-        this.map.addEventListener("zoomend", function() {
-            var zoomSize = self.map.getZoom();
-            console.log(zoomSize);
-            console.log(distJson);
-            if(zoomSize<=10){
-                self.map.clearOverlays();
-                if(self.disMarker) delete self.disMarker;
-                self.addDistrictMarker(distJson,"nolabel");
-            }else if(zoomSize>10&&zoomSize < 13){
-                if(self.disMarker) return;
-                self.map.clearOverlays();
-                self.addDistrictMarker(distJson,"hasLabel");
-                self.disMarkerHover(); //鼠标进入触发
-            }else if(zoomSize > 17){
-                if(self.infoPolygonArray)return;
-                self.addAllInfoWindow();
-            }else if(zoomSize >= 13 && zoomSize<=17){
-                if(self.initialMarker)return;
-                self.addMarker(); //向地图中添加marker
-            }
-        });
-    },
-    createMap: function() {
-        var map = new BMap.Map("dituContent"); //在百度地图容器中创建一个地图
-        var point = new BMap.Point(121.571074, 31.052843); //定义一个中心点坐标
-        map.centerAndZoom("上海市", 11); //设定地图的中心点和坐标并将地图显示在地图容器中
-        // map.setMapType(BMAP_HYBRID_MAP);
-        this.map = map;
-    },
-    //地图事件设置函数：
-    setMapEvent: function() {
-        this.map.enableDragging(); //启用地图拖拽事件，默认启用(可不写)
-        this.map.enableScrollWheelZoom(); //启用地图滚轮放大缩小
-        this.map.enableDoubleClickZoom(); //启用鼠标双击放大，默认启用(可不写)
-        this.map.enableKeyboard(); //启用键盘上下左右键移动地图
-        
-        var stCtrl = new BMap.PanoramaControl(); //构造全景控件
-        stCtrl.setOffset(new BMap.Size(20, 50));
-        this.map.addControl(stCtrl);//添加全景控件
-    },
-    //地图控件添加函数：
-    addMapControl: function() {
-        var ctrl_nav = new BMap.NavigationControl({
-            anchor: BMAP_ANCHOR_TOP_LEFT,
-            type: BMAP_NAVIGATION_CONTROL_LARGE
-        });
-        this.map.addControl(ctrl_nav);
-        //向地图中添加缩略图控件
-        var ctrl_ove = new BMap.OverviewMapControl({
-            anchor: BMAP_ANCHOR_BOTTOM_RIGHT,
-            isOpen: 1
-        });
-        this.map.addControl(ctrl_ove);
-        //向地图中添加比例尺控件
-        var ctrl_sca = new BMap.ScaleControl({
-            anchor: BMAP_ANCHOR_BOTTOM_LEFT
-        });
-        this.map.addControl(ctrl_sca);
-        // 向地图中添加地图切换控件
-        var ctrl_type = new BMap.MapTypeControl({
-            anchor: BMAP_ANCHOR_TOP_RIGHT
-        });
-        this.map.addControl(ctrl_type);
-    },
-    //利用数据库查到地址
-    addDistrictMarker:function(json,flag){
-        var self  = this;
-        self.dmJson = json;
-        self.labelArray = [];
-        if(flag&&flag==="hasLabel"){
-            this.disMarker = [];
-        }else{
-            this.disMarker_noLabel = [];
-        }
-        if(this.pcLayer){
-            this.map.removeTileLayer(self.pcLayer);// 清除覆盖区域图层测试
-            delete this.pcLayer;
-        }
-        self.clearMarkers(['disMarker']);
-        
-        for (var i = 0; i < json.length; i++) {
-            var district = json[i].district;
-            var p0 = json[i].disLoc.split(",")[0];
-            var p1 = json[i].disLoc.split(",")[1];
-            var point = new BMap.Point(p0,p1);
-            var rentMes = json[i].rentMes;
-            var rentLabel='';
-
-            var circle =new BMap.Circle(point,6000,{strokeColor:"red",fillColor:"red",strokeWeight:1});
-            if(flag&&flag==="hasLabel"){
-            var label = new BMap.Label(district,{position:point,offset:new BMap.Size(-25, -45) });
-            label.setStyle({
-                 color : "white",
-                 backgroundColor:"rgba(255,0,0)",
-                 fontSize : "14px",
-                 height : "20px",
-                 border:"none",
-                 lineHeight : "20px",
-                 fontFamily:"微软雅黑"
-            });
-            self.labelArray.push(label);
-            self.map.addOverlay(label);
-
-            for (var m = 0; m < rentMes.length; m++) {
-                if(/^(?:出租|出售|待出租|待出售)$/.test(rentMes[m].rent)){
-                    rentLabel = rentMes[m].rent+':'+rentMes[m].nums;
-                    var label1 = new BMap.Label(rentLabel,{position:point,offset:new BMap.Size(-20, -25+m*20) });
-                    label1.setStyle({
-                         color : "white",
-                         backgroundColor:"rgba(255,0,0)",
-                         border:"none",
-                         fontSize : "12px",
-                         fontFamily:"微软雅黑"
-                    });
-                    self.labelArray.push(label1);
-                    self.map.addOverlay(label1);
+    var myBDMap = {
+        init: function(markerArr, distJson) {
+            var self = this;
+            this.markerArr = markerArr;
+            console.log(markerArr);
+            this.createMap(); //创建地图
+            this.setMapEvent(); //设置地图事件
+            this.getMyPosition();//定位
+            this.addMapControl(); //向地图添加控件
+            this.toolbarEvent();
+            this.map.addEventListener("zoomend", function() {
+                var zoomSize = self.map.getZoom();
+                // console.log(zoomSize);
+                if (zoomSize <= 10) {
+                    self.map.clearOverlays();
+                    if (self.disMarker) delete self.disMarker;
+                    self.addDistrictMarker(distJson, "nolabel");
+                } else if (zoomSize > 10 && zoomSize < 13) {
+                    if (self.disMarker) return;
+                    self.map.clearOverlays();
+                    self.addDistrictMarker(distJson, "hasLabel");
+                    self.disMarkerEvent(); //鼠标进入触发
+                } else if (zoomSize > 17) {
+                    if (self.infoPolygonArray) return;
+                    self.addAllInfoWindow();
+                } else if (zoomSize >= 13 && zoomSize <= 17) {
+                    if (self.initialMarker) return;
+                    self.addMarker(); //向地图中添加marker
                 }
+            });
+        },
+        /**
+         * 工具条  测距离和面积
+         * @2016-11-19
+         */
+        toolbarEvent: function() {
+            var self = this,
+            getDis = document.getElementById('getDis'),
+            getArea = document.getElementById('getArea'),
+            distanceTool, area, myDrawingManagerObject;
+          getDis.addEventListener('click', function() {
+            closeOthers('getDis');
+            distanceTool = new BMapLib.DistanceTool(self.map);
+            distanceTool.open();
+            /*distanceTool.addEventListener("drawend",function(e){
+                console.log(e);
+                console.log(e.distance);
+            });*/
+          });
+          getArea.addEventListener('click', function() {
+            closeOthers('getArea');
+            /*area = new BMapLib.GeoUtils.getPolygonArea();
+            alert("共" + area.toFixed(2) + "平方米");
+            self.map.addOverlay(ply);*/
+            myDrawingManagerObject = new BMapLib.DrawingManager(self.map, {
+                isOpen: true,
+                drawingType: BMAP_DRAWING_MARKER,
+                enableDrawingTool: false,
+                enableCalculate: true,
+                polygonOptions: {
+                    strokeColor: "#ff6319",
+                    strokeWeight: "1"
+                }
+            });
+            myDrawingManagerObject.setDrawingMode(BMAP_DRAWING_POLYGON);
+            myDrawingManagerObject.open();
+            myDrawingManagerObject.addEventListener('polygoncomplete', function(e) {
+                console.log(e);
+            });
+          });
+
+            function closeOthers(whichIsOpen) {
+            switch (whichIsOpen) {
+                case 'getArea':
+                    if (distanceTool) distanceTool.close();
+                    break;
+                case 'getDis':
+                    if (myDrawingManagerObject) myDrawingManagerObject.close();
+                    break;
             }
-            self.disMarker.push(circle);
-        }else{
-            self.disMarker_noLabel.push(circle);
-        }   
-            self.map.addOverlay(circle);
         }
-        self.clearMarkers(['initialMarker']);
-    },
-    disMarkerHover:function(){
-        if(this.disMarker){
-            this.geoc = new BMap.Geocoder();
-            this.bdary = new BMap.Boundary();
-            for (var i = 0; i < this.disMarker.length; i++) {
-                this._disMarkerHoverHandler(this.disMarker[i]);
-            }
-        }
-    },
-    _disMarkerHoverHandler:function(marker){
-        var self = this;
-        self.plyArray = [];
-        marker.addEventListener("mouseover",function(e){
-            self.geoc.getLocation(marker.point,function(rs){
-                var addComp = rs.addressComponents;
-                console.log(addComp);
-                self.bdary.get(addComp.city+addComp.district,function(res){
-                    var count = res.boundaries.length; //行政区域的点有多少个
-                    if (count === 0) {
-                        return ;
+        },
+        getMyPosition:function(){
+            var self = this,
+            myPosition = document.getElementById('myPosition');
+            myPosition.addEventListener('click', function(event) {
+                var geolocation = new BMap.Geolocation();
+                geolocation.getCurrentPosition(function(r){
+                    if(this.getStatus() == BMAP_STATUS_SUCCESS){
+                        var mk = new BMap.Marker(r.point);
+                        self.map.addOverlay(mk);
+                        // self.map.panTo(r.point);
+                        self.map.centerAndZoom(r.point,15);
+                        // alert('您的位置：'+r.point.lng+','+r.point.lat);
                     }
-                    var pointArray = [];
-                    for (var i = 0; i < count; i++) {
-                        ply = new BMap.Polygon(res.boundaries[i], {strokeWeight: 2, strokeColor: "#ff0000",fillOpacity:0}); //建立多边形覆盖物
-                        self.plyArray.push(ply);
-                        self.map.addOverlay(ply);  //添加覆盖物
-                        // pointArray = pointArray.concat(ply.getPath());
-                    }  
-                });
-
+                    else {
+                        alert('定位失败，请重新定位'+this.getStatus());
+                    }        
+                },{enableHighAccuracy: true})
             });
-        });
-        marker.addEventListener("mouseout",function(){
-            if(self.plyArray&&self.plyArray.length!== 0 ){
-                for (var i = 0; i < self.plyArray.length; i++) {
-                 self.map.removeOverlay(self.plyArray[i]); 
+        },
+        createMap: function() {
+            var map = new BMap.Map("dituContent"); //在百度地图容器中创建一个地图
+            var point = new BMap.Point(121.571074, 31.052843); //定义一个中心点坐标
+            map.centerAndZoom("上海市", 11); //设定地图的中心点和坐标并将地图显示在地图容器中
+            // map.setMapType(BMAP_HYBRID_MAP);
+            this.map = map;
+        },
+        //地图事件设置函数：
+        setMapEvent: function() {
+            this.map.enableDragging(); //启用地图拖拽事件，默认启用(可不写)
+            this.map.enableScrollWheelZoom(); //启用地图滚轮放大缩小
+            this.map.enableDoubleClickZoom(); //启用鼠标双击放大，默认启用(可不写)
+            this.map.enableKeyboard(); //启用键盘上下左右键移动地图
+
+            var stCtrl = new BMap.PanoramaControl(); //构造全景控件
+            stCtrl.setOffset(new BMap.Size(20, 50));
+            this.map.addControl(stCtrl); //添加全景控件
+        },
+        //地图控件添加函数：
+        addMapControl: function() {
+            var ctrl_nav = new BMap.NavigationControl({
+                anchor: BMAP_ANCHOR_TOP_LEFT,
+                type: BMAP_NAVIGATION_CONTROL_LARGE
+            });
+            this.map.addControl(ctrl_nav);
+            //向地图中添加缩略图控件
+            var ctrl_ove = new BMap.OverviewMapControl({
+                anchor: BMAP_ANCHOR_BOTTOM_RIGHT,
+                isOpen: 1
+            });
+            this.map.addControl(ctrl_ove);
+            //向地图中添加比例尺控件
+            var ctrl_sca = new BMap.ScaleControl({
+                anchor: BMAP_ANCHOR_BOTTOM_LEFT
+            });
+            this.map.addControl(ctrl_sca);
+            // 向地图中添加地图切换控件
+            var ctrl_type = new BMap.MapTypeControl({
+                anchor: BMAP_ANCHOR_TOP_RIGHT
+            });
+            this.map.addControl(ctrl_type);
+        },
+        //利用数据库查到地址
+        addDistrictMarker: function(json, flag) {
+            var self = this;
+            self.dmJson = json;
+            self.labelArray = [];
+            if (flag && flag === "hasLabel") {
+                this.disMarker = [];
+            } else {
+                this.disMarker_noLabel = [];
+            }
+            if (this.pcLayer) {
+                this.map.removeTileLayer(self.pcLayer); // 清除覆盖区域图层测试
+                delete this.pcLayer;
+            }
+            self.clearMarkers(['disMarker']);
+
+            for (var i = 0; i < json.length; i++) {
+                var district = json[i].district;
+                var p0 = json[i].disLoc.split(",")[0];
+                var p1 = json[i].disLoc.split(",")[1];
+                var point = new BMap.Point(p0, p1);
+                var rentMes = json[i].rentMes;
+                var rentLabel = '';
+
+                var circle = new BMap.Circle(point, 6000, {
+                    strokeColor: "red",
+                    fillColor: "red",
+                    strokeWeight: 1
+                });
+                if (flag && flag === "hasLabel") {
+                    var label = new BMap.Label(district, {
+                        position: point,
+                        offset: new BMap.Size(-25, -45)
+                    });
+                    label.setStyle({
+                        color: "white",
+                        backgroundColor: "rgba(255,0,0)",
+                        fontSize: "14px",
+                        height: "20px",
+                        border: "none",
+                        lineHeight: "20px",
+                        fontFamily: "微软雅黑",
+                        zIndex: "-9999"
+                    });
+                    self.labelArray.push(label);
+                    self.map.addOverlay(label);
+
+                    for (var m = 0; m < rentMes.length; m++) {
+                        if (/^(?:出租|出售|待出租|待出售)$/.test(rentMes[m].rent)) {
+                            rentLabel = rentMes[m].rent + ':' + rentMes[m].nums;
+                            var label1 = new BMap.Label(rentLabel, {
+                                position: point,
+                                offset: new BMap.Size(-20, -25 + m * 20)
+                            });
+                            label1.setStyle({
+                                color: "white",
+                                backgroundColor: "rgba(255,0,0)",
+                                border: "none",
+                                fontSize: "12px",
+                                fontFamily: "微软雅黑",
+                                zIndex: "-9999"
+
+                            });
+                            self.labelArray.push(label1);
+                            self.map.addOverlay(label1);
+                        }
+                    }
+                    self.disMarker.push(circle);
+                } else {
+                    self.disMarker_noLabel.push(circle);
+                }
+                self.map.addOverlay(circle);
+            }
+            self.clearMarkers(['initialMarker']);
+        },
+        disMarkerEvent: function() {
+            if (this.disMarker) {
+                this.geoc = new BMap.Geocoder();
+                this.bdary = new BMap.Boundary();
+                for (var i = 0; i < this.disMarker.length; i++) {
+                    this._disMarkerEventHandler(this.disMarker[i]);
                 }
             }
-        });
-    },
-    /*
+        },
+        _disMarkerEventHandler: function(marker) {
+            var self = this;
+            self.plyArray = [];
+            marker.addEventListener("mouseover", function(e) {
+                self.geoc.getLocation(marker.point, function(rs) {
+                    var addComp = rs.addressComponents;
+                    // console.log(addComp);
+                    self.bdary.get(addComp.city + addComp.district, function(res) {
+                        var count = res.boundaries.length; //行政区域的点有多少个
+                        if (count === 0) {
+                            return;
+                        }
+                        var pointArray = [];
+                        for (var i = 0; i < count; i++) {
+                            ply = new BMap.Polygon(res.boundaries[i], {
+                                strokeWeight: 2,
+                                strokeColor: "#ff0000",
+                                fillColor: "#ccc",
+                                fillOpacity: 0
+                            }); //建立多边形覆盖物
+                            self.plyArray.push(ply);
+                            self.map.addOverlay(ply); //添加覆盖物
+                            // pointArray = pointArray.concat(ply.getPath());
+                            ply.addEventListener("click", function() {
+                                self.map.zoomIn();
+                                self.map.panTo(marker.point);
+                                console.log(addComp.district);
+                            });
+                        }
+                    });
+
+                });
+            });
+            marker.addEventListener("mouseout", function() {
+                if (self.plyArray && self.plyArray.length !== 0) {
+                    for (var i = 0; i < self.plyArray.length; i++) {
+                        self.map.removeOverlay(self.plyArray[i]);
+                    }
+                }
+            });
+            /*marker.addEventListener("click",function(){
+                self.map.zoomIn();
+                console.log('点击marker');
+            });*/
+
+        },
+        /*
     // 利用百度API在线解析地址
     addDistrictMarker:function(json,flag){
         var self  = this;
@@ -353,122 +558,122 @@ var myBDMap = {
             self.map.addOverlay(circle);
 
     },*/
-    addMarker: function() {
-        var self = this;
-        var initialMarker = [];
-        markerArr = this.markerArr;
-        if(this.pcLayer){
-            this.map.removeTileLayer(self.pcLayer);// 清除覆盖区域图层测试
-            delete this.pcLayer;
-        }
-        for (var i = 0; i < markerArr.length; i++) {
-            var json = markerArr[i];
-            var p0 = json.point.split(",")[0];
-            var p1 = json.point.split(",")[1];
-            var point = new BMap.Point(p0, p1);
-            var iconImg = createIcon(json.icon, "", json.polygon.color);
-            var marker = new BMap.Marker(point, {
-                icon: iconImg
+        addMarker: function() {
+            var self = this;
+            var initialMarker = [];
+            markerArr = this.markerArr;
+            if (this.pcLayer) {
+                this.map.removeTileLayer(self.pcLayer); // 清除覆盖区域图层测试
+                delete this.pcLayer;
+            }
+            for (var i = 0; i < markerArr.length; i++) {
+                var json = markerArr[i];
+                var p0 = json.point.split(",")[0];
+                var p1 = json.point.split(",")[1];
+                var point = new BMap.Point(p0, p1);
+                var iconImg = createIcon(json.icon, 1.2, json.polygon.color);
+                var marker = new BMap.Marker(point, {
+                    icon: iconImg
+                });
+                initialMarker.push(marker);
+                // var iw = createInfoWindow(i);
+                // var label = new BMap.Label(json.title,{"offset":new BMap.Size(json.icon.lb-json.icon.x+10,-20)});
+                // marker.setLabel(label);
+                this.map.addOverlay(marker);
+                // label.setStyle({
+                //             borderColor:"#808080",
+                //             color:"#333",
+                //             cursor:"pointer"
+                // });
+                this._addEventHandler(json, marker);
+
+            }
+            self.initialMarker = initialMarker;
+            //clear
+            self.clearMarkers(['labelArray', 'disMarker', 'disMarker_noLabel', 'infoPolygonArray', 'markerArray']);
+
+        },
+        _addEventHandler: function(json, marker) {
+            var self = this;
+            marker.addEventListener("click", function(e) {
+                self.createInfoWindow(json, e)
             });
-            initialMarker.push(marker);
-            // var iw = createInfoWindow(i);
-            // var label = new BMap.Label(json.title,{"offset":new BMap.Size(json.icon.lb-json.icon.x+10,-20)});
-            // marker.setLabel(label);
-            this.map.addOverlay(marker);
-            // label.setStyle({
-            //             borderColor:"#808080",
-            //             color:"#333",
-            //             cursor:"pointer"
-            // });
-            this._addEventHandler(json, marker);
-
-        }
-        self.initialMarker = initialMarker;
-        //clear
-        self.clearMarkers(['labelArray','disMarker','disMarker_noLabel','infoPolygonArray','markerArray']);
-
-    },
-    _addEventHandler: function(json, marker) {
-        var self = this;
-        marker.addEventListener("click", function(e) {
-            self.createInfoWindow(json, e)
-        });
-        marker.addEventListener("mouseover", function(e) {
-            self.createInfoWindow(json, e);
-        });
-        marker.addEventListener("mouseout", function(e) {
-            self.map.closeInfoWindow();
-        });
-
-    },
-    addAllInfoWindow: function() {
-        var infoPolygonArray = [];
-        var markerArray = [];
-        var self = this;
-        if(!this.pcLayer){
-            this.pcLayer  =new BMap.PanoramaCoverageLayer();
-            this.map.addTileLayer(self.pcLayer);// 覆盖区域图层测试
-        }
-
-        for (var i = 0; i < self.markerArr.length; i++) {
-            var json = self.markerArr[i];
-            var p0 = json.point.split(",")[0];
-            var p1 = json.point.split(",")[1];
-            var point = new BMap.Point(p0, p1);
-            var iconImg = createIcon(json.icon, 1, json.polygon.color);
-            var marker = new BMap.Marker(point, {
-                icon: iconImg
+            marker.addEventListener("mouseover", function(e) {
+                self.createInfoWindow(json, e);
             });
-            markerArray.push(marker);
-            self.map.addOverlay(marker);
+            marker.addEventListener("mouseout", function(e) {
+                self.map.closeInfoWindow();
+            });
 
-            var infoPolygon = new infoPolygonOverlay(point, json.title, json.content, json.polygon);
-            infoPolygonArray.push(infoPolygon);
-            self.map.addOverlay(infoPolygon);
-        }
+        },
+        addAllInfoWindow: function() {
+            var infoPolygonArray = [];
+            var markerArray = [];
+            var self = this;
+            if (!this.pcLayer) {
+                this.pcLayer = new BMap.PanoramaCoverageLayer();
+                this.map.addTileLayer(self.pcLayer); // 覆盖区域图层测试
+            }
+
+            for (var i = 0; i < self.markerArr.length; i++) {
+                var json = self.markerArr[i];
+                var p0 = json.point.split(",")[0];
+                var p1 = json.point.split(",")[1];
+                var point = new BMap.Point(p0, p1);
+                var iconImg = createIcon(json.icon, 1, json.polygon.color);
+                var marker = new BMap.Marker(point, {
+                    icon: iconImg
+                });
+                markerArray.push(marker);
+                self.map.addOverlay(marker);
+
+                var infoPolygon = new infoPolygonOverlay(point, json.title, json.content, json.polygon);
+                infoPolygonArray.push(infoPolygon);
+                self.map.addOverlay(infoPolygon);
+            }
             self.infoPolygonArray = infoPolygonArray;
             self.markerArray = markerArray;
-          //clearMarkers
-          self.clearMarkers(['initialMarker']);
-        /*if(this.initialMarker&&this.initialMarker.length!= 0){
-            console.log(this.initialMarker);
-            for (var j = 0,len=this.initialMarker.length; j < len; j++) {
-                self.map.removeOverlay(this.initialMarker[j]);
-            }
-                delete this.initialMarker;
-        }*/
-    },
-    clearMarkers:function(arg){
-        var self = this;
-        var argArr = [];
-        
-        for (var i = 0; i < arg.length; i++) {
-            argArr[i] = myBDMap[arg[i]];
-            if(argArr[i]&&argArr[i].length!= 0){
-                for (var j = 0,len=argArr[i].length; j < len; j++) {
-                    self.map.removeOverlay(argArr[i][j]);
+            //clearMarkers
+            self.clearMarkers(['initialMarker']);
+            /*if(this.initialMarker&&this.initialMarker.length!= 0){
+                console.log(this.initialMarker);
+                for (var j = 0,len=this.initialMarker.length; j < len; j++) {
+                    self.map.removeOverlay(this.initialMarker[j]);
                 }
-                delete myBDMap[arg[i]];
-             }
-        }
-    },
-    
-    //创建InfoWindow
-    createInfoWindow: function(json, e) {
-        var opts = {
-            width: 220, // 信息窗口宽度
-            height: 0, // 信息窗口高度
-            // title: "信息窗口", // 信息窗口标题
-            enableMessage: true //设置允许信息窗发送短息
-        };
-        var content = "<p class='iw_poi_title' title='" + json.title + "'>" + json.title + "</p><div class='iw_poi_content'>" + json.content + "</div>";
-        var p = e.target;
-        var point = new BMap.Point(p.getPosition().lng, p.getPosition().lat);
-        var infoWindow = new BMap.InfoWindow(content, opts); // 创建信息窗口对象 
-        this.map.openInfoWindow(infoWindow, point); //开启信息窗口
-    },
+                    delete this.initialMarker;
+            }*/
+        },
+        clearMarkers: function(arg) {
+            var self = this;
+            var argArr = [];
 
-};
+            for (var i = 0; i < arg.length; i++) {
+                argArr[i] = myBDMap[arg[i]];
+                if (argArr[i] && argArr[i].length != 0) {
+                    for (var j = 0, len = argArr[i].length; j < len; j++) {
+                        self.map.removeOverlay(argArr[i][j]);
+                    }
+                    delete myBDMap[arg[i]];
+                }
+            }
+        },
+
+        //创建InfoWindow
+        createInfoWindow: function(json, e) {
+            var opts = {
+                width: 220, // 信息窗口宽度
+                height: 60, // 信息窗口高度
+                // title: "信息窗口", // 信息窗口标题
+                enableMessage: true //设置允许信息窗发送短息
+            };
+            var content = "<p class='iw_poi_title' title='" + json.title + "'>" + json.title + "【" + json.content + "】" + "</p><div class='iw_poi_content'>" + "面积:" + json.area + "&nbsp㎡&nbsp&nbsp售价:" + json.sellingPrice + "&nbsp元/㎡/天</div>";
+            var p = e.target;
+            var point = new BMap.Point(p.getPosition().lng, p.getPosition().lat);
+            var infoWindow = new BMap.InfoWindow(content, opts); // 创建信息窗口对象 
+            this.map.openInfoWindow(infoWindow, point); //开启信息窗口
+        },
+
+    };
 
 function infoPolygonOverlay(point, title, text, polygon) {
     this._point = point;
@@ -539,13 +744,17 @@ function createIcon(jsonIcon, scale, color) {
     })
     return icon;
 }
+
 //构建数组
+/********************************************************/
 var JosnList = []; 
 {loop $A $key $v}
 var item = {
     title: "{$v['address']}",
     content: "{$v['rent']}",
     point: "{$v['location']}",
+    area: "{$v['area']}",
+    sellingPrice: "{$v['sellingPrice']}",
     polygon: {
         width: 150,
         height: 50,
@@ -564,130 +773,132 @@ var item = {
 JosnList.push(item); 
 {/loop}
 
-var markerArr = JosnList;
-
-var distJson = [];
+    var markerArr = JosnList;
+    /********************************************************/
+    var distJson = []; 
 {loop $distNumsArray $key2 $v2}
     var item = {
-        district:"{$v2['district']}",
-        disLoc:"{$v2['disLoc']}",
-        rent:"{$v2['rent']}",
-        nums:"{$v2['nums']}"
+        district: "{$v2['district']}",
+        disLoc: "{$v2['disLoc']}",
+        rent: "{$v2['rent']}",
+        nums: "{$v2['nums']}"
     };
-    distJson.push(item);
+    distJson.push(item); 
 {/loop}
 
-var distJson1 =[];
-var rentObj = {
-    'rent':distJson[0].rent,
-    'nums':distJson[0].nums
-}
-var it = {
-    'district':distJson[0].district,
-    'disLoc':distJson[0].disLoc,
-    'rentMes':[]
-}
-it.rentMes.push(rentObj);
-distJson1.push(it);
-
-for (var i = 0,len = distJson.length-1; i < len; i++) {
-    if(len){
+        var distJson1 = []; //我们需要的分区显示数据
         var rentObj = {
-            'rent':distJson[i+1].rent,
-            'nums':distJson[i+1].nums
+            'rent': distJson[0].rent,
+            'nums': distJson[0].nums
         }
-        if(distJson[i+1].district != distJson[i].district){
-            it = {
-                'district':distJson[i+1].district,
-                'disLoc':distJson[i+1].disLoc,
-                'rentMes':[]
+        var it = {
+            'district': distJson[0].district,
+            'disLoc': distJson[0].disLoc,
+            'rentMes': []
+        }
+        it.rentMes.push(rentObj);
+        distJson1.push(it);
+
+        for (var i = 0, len = distJson.length - 1; i < len; i++) {
+            if (len) {
+                var rentObj = {
+                    'rent': distJson[i + 1].rent,
+                    'nums': distJson[i + 1].nums
+                }
+                if (distJson[i + 1].district != distJson[i].district) {
+                    it = {
+                        'district': distJson[i + 1].district,
+                        'disLoc': distJson[i + 1].disLoc,
+                        'rentMes': []
+                    }
+                    it.rentMes.push(rentObj);
+                    distJson1.push(it);
+                } else {
+                    it.rentMes.push(rentObj);
+                }
             }
-            it.rentMes.push(rentObj);
-            distJson1.push(it);
-        }else{
-            it.rentMes.push(rentObj);
         }
-    }
-}
-    /*var markerArr = [{
-        title: "剑川路951号-零号湾创业园区",
-        district:"闵行区",
-        content: "出售",
-        point: "121.428205,31.032651",
-        polygon: {
-            width: 150,
-            height: 50,
-            color: "red"
-        },
-        isOpen: 0,
-        icon: {
-            w: 21,
-            h: 21,
-            l: 0,
-            t: 0,
-            x: 6,
-            lb: 5
-        }
-    }, {
-        title: "XX路5800号",
-        district:"奉贤区",
-        content: "不出售",
-        point: "121.470463,30.924058",
-        polygon: {
-            width: 150,
-            height: 50,
-            color: "blue"
-        },
-        isOpen: 0,
-        icon: {
-            w: 21,
-            h: 21,
-            l: 0,
-            t: 0,
-            x: 6,
-            lb: 5
-        }
-    }, {
-        title: "东川路500号",
-        district:"闵行区",
-        content: "出售",
-        point: "121.430463,30.994058",
-        polygon: {
-            width: 150,
-            height: 50,
-            color: "red"
-        },
-        isOpen: 0,
-        icon: {
-            w: 21,
-            h: 21,
-            l: 0,
-            t: 0,
-            x: 6,
-            lb: 5
-        }
-    },{
-        title: "XX路500号",
-        district:"奉贤区",
-        content: "不出售",
-        point: "121.470463,30.934058",
-        polygon: {
-            width: 150,
-            height: 50,
-            color: "red"
-        },
-        isOpen: 0,
-        icon: {
-            w: 21,
-            h: 21,
-            l: 0,
-            t: 0,
-            x: 6,
-            lb: 5
-        }
-    }];*/
-    myBDMap.init(markerArr,distJson1); //创建和初始化地图
-    // console.log(myBDMap.markerArr);
+        /*var markerArr = [{
+            title: "剑川路951号-零号湾创业园区",
+            district:"闵行区",
+            content: "出售",
+            point: "121.428205,31.032651",
+            polygon: {
+                width: 150,
+                height: 50,
+                color: "red"
+            },
+            isOpen: 0,
+            icon: {
+                w: 21,
+                h: 21,
+                l: 0,
+                t: 0,
+                x: 6,
+                lb: 5
+            }
+        }, {
+            title: "XX路5800号",
+            district:"奉贤区",
+            content: "不出售",
+            point: "121.470463,30.924058",
+            polygon: {
+                width: 150,
+                height: 50,
+                color: "blue"
+            },
+            isOpen: 0,
+            icon: {
+                w: 21,
+                h: 21,
+                l: 0,
+                t: 0,
+                x: 6,
+                lb: 5
+            }
+        }, {
+            title: "东川路500号",
+            district:"闵行区",
+            content: "出售",
+            point: "121.430463,30.994058",
+            polygon: {
+                width: 150,
+                height: 50,
+                color: "red"
+            },
+            isOpen: 0,
+            icon: {
+                w: 21,
+                h: 21,
+                l: 0,
+                t: 0,
+                x: 6,
+                lb: 5
+            }
+        },{
+            title: "XX路500号",
+            district:"奉贤区",
+            content: "不出售",
+            point: "121.470463,30.934058",
+            polygon: {
+                width: 150,
+                height: 50,
+                color: "red"
+            },
+            isOpen: 0,
+            icon: {
+                w: 21,
+                h: 21,
+                l: 0,
+                t: 0,
+                x: 6,
+                lb: 5
+            }
+        }];*/
+        myBDMap.init(markerArr, distJson1); //创建和初始化地图
+        // console.log(myBDMap.markerArr);
+// });
+
 </script>
 
 </html>

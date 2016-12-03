@@ -4,8 +4,10 @@
 <head>
     <title> - 添加厂房信息 - </title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
     <meta name="description" content="" />
     <meta name="keywords" content="" />
+    <link rel="stylesheet" href="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.css" />
     <style type="text/css">
     body {
         font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
@@ -24,27 +26,27 @@
     }
     
     #add-top-bar {
-        z-index: 999;
-        padding: 10px;
+        position: relative;
+        padding-top: 10px;
+        height: 40px;
         color: #fff;
         font-family: "Microsoft YaHei";
         font-size: 16px;
         background-color: #008B00;
+        z-index: 999;
     }
-    
     /* ———– My Form ———– */
     
     .myform {
-        width: 98.5%;
-        padding-left: 12px;
+        /*width: 98.5%;*/
     }
     /* ———– stylized ———– */
     
     #stylized {
-        border: solid 1px #b7ddf2;
+        /*border: solid 1px #b7ddf2;*/
         background: #ebf4fb;
     }
-
+    
     #stylized label {
         font-weight: bold;
         margin-top: 5px;
@@ -53,20 +55,18 @@
     .stylized input,
     .stylized select {
         /*float: left;*/
-        font-size: 15px;
+        font-size: 14px;
         padding: 4px 2px;
         border: solid 1px #aacfe4;
-        width: 180px;
-        margin: 2px 10px 5px 10px;
+        width: 6rem;
+        /*margin: 2px 10px 5px 10px;*/
     }
-    
     .input-small {
-        width: 60px !important;
+        width: 2.5rem !important;
     }
     
     #stylized .getloc-btn {
-        width: 100px;
-        font-weight: bold;
+        width: 80px;
     }
     
     .getloc-btn:hover {
@@ -112,56 +112,155 @@
     #rentSetting:hover {
         cursor: pointer;
     }
-    #town{
-        width:120px !important;
-    }
     .sperate-line {
         color: #336600;
         /*font-size: 20px;*/
         /*line-height: 1.5;*/
         margin: -3px 5px 0 5px;
     }
-    #gotoCeshimap{
-        float: right;
-        margin-right: 20px;
-        margin-top: -9px;
-        padding:9px;
     
+    #gotoCeshimap {
+        float: right;
+        margin-right: 0.6rem;
+        margin-top: -9px;
+        padding: 9px;
     }
+    
     #gotoCeshimap a,
-    #editPage a{
+    #editPage a {
         color: #fff;
         text-decoration: none;
     }
-    #editPage{
+    
+    #editPage {
         float: right;
-        margin-right: 40px;
+        margin-right: 1.3rem;
         margin-top: -9px;
-        padding:9px;
+        padding: 9px;
     }
+    
     #editPage:hover,
-    #gotoCeshimap:hover{
+    #gotoCeshimap:hover {
         background-color: #00a000;
     }
+    
     #back {
         float: right;
-        margin-right: 20px;
+        margin-right: 0.6rem;
     }
-    #back a{
+    
+    #back a {
         color: #fff;
-
     }
-    @media screen and (min-height: 1000px) and (min-width: 1200px) {
-        #container{
-            height: 1000px;
+    
+    #toolbar {
+        float: right;
+        margin-right: 1.3rem;
+        margin-top: -9px;
+        padding: 9px;
+    }
+    
+    #toolbar img {
+        width: 24px;
+        height: 24px;
+        margin-right: 10px;
+    }
+    
+    #toolbar img:hover {
+        cursor: pointer;
+        background-color: #00a000;
+    }
+    #myPosition{
+        position: fixed;
+        top:85%;
+        left: 3%;
+    }
+    #myPosition:hover{
+        cursor: pointer;
+    }
+    @media screen and (max-width: 320px){
+        #add-top-bar{
+            height: 66px;
         }
-        #stylized .sub{
+    }
+    @media screen and (max-width: 479.9px){
+        html{
+             font-size: 50% !important;
+        }
+        #container {
+            height: 440px;
+        }
+        #add-top-bar .logo-word{
+            display: none;
+        }
+        .province,.city,.district{
+            display: none;
+        }
+        #rent{
+            width: 57px !important;
+        }
+    }
+    @media screen and (min-width: 480px){
+        html{
+             font-size: 62.5% !important;
+        }
+        #container {
+            height: 750px;
+        }
+        #add-top-bar .logo-word{
+            display: none;
+        }
+        .province,.city,.district{
+            display: none;
+        }
+        #rent{
+            width: 57px !important;
+        }
+    }
+    @media screen and (min-width: 640px){
+        html{
+             font-size: 125% !important;
+        }
+        #container {
+            height: 900px;
+        }
+        #add-top-bar .logo-word{
+            display: none;
+        }
+        .province,.city,.district{
+            display: inline-block;
+        }
+        #rent{
+            width: 57px !important;
+        }
+    }
+    @media screen and (min-width: 768px) {
+        html{
+             font-size: 150% !important;
+        }
+        #container {
+            height: 980px;
+        }
+        #add-top-bar .logo-word{
+            display: inline-block;
+        }
+        #stylized .sub {
             margin-right: 10%;
         }
     }
-    @media screen and (min-width: 1439px) {
-        #container{
-            height: 1440px;
+    
+    @media screen and (min-width: 1024px) {
+        html{
+             font-size: 187.5% !important;
+        }
+        #container {
+            height: 1150px;
+        }
+        #add-top-bar .logo-word{
+            display: inline-block;
+        }
+        #town {
+           width: 120px !important;
         }
     }
     </style>
@@ -169,16 +268,18 @@
 
 <body>
     <div id="add-top-bar">
-        <span>&nbsp&nbsp添加厂房信息</span>
+        <span class="logo-word">&nbsp&nbsp添加厂房信息</span>
         <span id="back"><a href="<?php echo AJ_PATH;?>">返回首页</a></span>
         <span id="editPage"><a href="<?php echo AJ_PATH;?>ceshimap/dtEditor/edit.html" target="blank">修改房源</a> </span>
         <span id="gotoCeshimap"><a href="<?php echo AJ_PATH;?>ceshimap/" target="blank">查看地图</a> </span>
+        <div id="toolbar">
+            <img id="getDis" src="<?php echo AJ_PATH;?>file/image/distance.png" alt="测距离" />
+            <img id="getArea" src="<?php echo AJ_PATH;?>file/image/area.png" alt="测面积" />
+        </div>
     </div>
     <div id="stylized" class="myform stylized">
         <form id="form" name="form" method="post" action="<?php echo AJ_PATH;?>/ceshimap/add2DB.php">
-            <label>地址信息:
-                <!-- <span class="small"></span> -->
-            </label>
+            <label>地址信息:</label>
             <input type="text" name="address" id="address" placeholder="请输入地址信息..." value="" />
             <input type="button" value="获取坐标" class="getloc-btn" onclick="searchByStationName();" />
             <!-- <img src="<?php echo AJ_PATH;?>file/image/postion.png" id="getPos" alt="定位" title="定位在地图上获取坐标信息"> -->
@@ -189,38 +290,52 @@
             <label>出租信息:
             </label>
             <!-- <input type="text" name="rent" id="rent" placeholder="请输入出租信息..." value="" /> -->
-            <select name="rent" id="rent" class="input-small" >
+            <select name="rent" id="rent" class="input-small">
                 {loop $A $key $val}
                 <option value="{$val['rent']}">{$val['rent']}</option>
                 {/loop}
             </select>
             <!-- <img src="<?php echo AJ_PATH;?>file/image/seting.png" id="rentSetting" alt="设置" title="修改,添加出租信息"> -->
-            <img src="<?php echo AJ_PATH;?>file/image/seting.png" id="rentSetting" alt="设置" title="修改,添加出租信息">
             <div class="spacer"></div>
-            <label>省份:</label>
-            <input type="text" id="province" class="input-small" />
-            <label>&nbsp&nbsp城市:</label>
-            <input type="text" id="city" class="input-small" />
-            <label>&nbsp&nbsp区:</label>
-            <input type="text" id="district" class="input-small" />
-            <label>&nbsp&nbsp镇:</label>
-            <input type="text" id="town" class="input-small" />
+            <label class="province">省份:</label>
+            <input type="text" id="province" class="input-small province" />
+            <label class="city">&nbsp&nbsp城市:</label>
+            <input type="text" id="city" class="input-small city" />
+            <label class="district">&nbsp&nbsp区:</label>
+            <input type="text" id="district" class="input-small district" />
+            <label class="town">&nbsp&nbsp镇:</label>
+            <input type="text" id="town" class="input-small town" />
             <label class="sperate-line">|</label>
             <label>&nbsp&nbsp厂房面积:</label>
             <input type="text" id="area" class="input-small" />
             <label>&nbsp&nbsp售价:</label>
             <input type="text" id="sellingPrice" class="input-small" />
             <input class="sub" id="sub" type="button" value="提交" />
-
         </form>
     </div>
     <!-- <div id="rentSettingDiv"></div> -->
     <div id="container"> </div>
+    <img id="myPosition" src="<?php echo AJ_PATH;?>file/image/myPosition.png" alt="我的位置" />
+
+
+
     <script src="http://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
-    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=TPrSyQXhBwEjWzfXzPw3iPXxqISq2idO"></script>
-    <script type="text/javascript" src="http://api.map.baidu.com/library/MarkerTool/1.2/src/MarkerTool.js"></script>
+    <script src="http://api.map.baidu.com/api?v=2.0&ak=TPrSyQXhBwEjWzfXzPw3iPXxqISq2idO"></script>
+    <script src="http://api.map.baidu.com/library/MarkerTool/1.2/src/MarkerTool.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/library/DistanceTool/1.2/src/DistanceTool_min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/library/GeoUtils/1.2/src/GeoUtils_min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.js"></script>
+    <script src="<?php echo AJ_STATIC;?>file/script/myCommon.js"></script>
     <script type="text/javascript">
-    var map = new BMap.Map("container");
+    var styleOptions = {
+            strokeColor: "red", //边线颜色。
+            fillColor: "", //填充颜色。当参数为空时，圆形将没有填充效果。
+            strokeWeight: 2, //边线的宽度，以像素为单位。
+            strokeOpacity: 0.8, //边线透明度，取值范围0 - 1。
+            fillOpacity: 0, //填充的透明度，取值范围0 - 1。
+            strokeStyle: 'solid' //边线的样式，solid或dashed。
+        },marker,
+    map = new BMap.Map("container");
     map.centerAndZoom("上海", 12);
     map.setMapType(BMAP_HYBRID_MAP);
     // map.enableContinuousZoom(); //启用地图惯性拖拽，默认禁用
@@ -248,7 +363,148 @@
     });
     map.addControl(ctrl_type);
 
-    var marker;
+    toolbarEvent(map);
+    var overlays = [],
+        drawingObj = [];
+    drawingManager(map);
+
+    setTimeout(function(){
+        loadAllOverlays(map); //加载绘制的图形
+        loadAllMarkers(map);
+    },0);
+    getMyPosition(map);
+    /*加载所有的标记*/
+    function loadAllMarkers(map){
+        {loop $markers $k $v}
+            var location = '{$v['location']}',
+            p0 = location.split(',')[0],
+            p1 = location.split(',')[1],
+            point = new BMap.Point(p0,p1);
+            var marker = new BMap.Marker(point);
+            map.addOverlay(marker);
+
+        {/loop}
+    }
+    /*加载所有的多边形*/
+    function loadAllOverlays(map){
+        {loop $overlays $k $v}
+            var drawingType = "{$v['drawingType']}";
+            switch(drawingType){
+                case "polygon":
+                case "rectangle":
+                    if('{$v['geoJson']}'){
+                        geoJson = JSON.parse('{$v['geoJson']}');
+                        var poly = new BMap.Polygon(geoJson,styleOptions);
+                        map.addOverlay(poly);
+                    }
+                    break;
+                case "polylin":
+                    break;
+            }
+        {/loop}
+    }
+    /*Drawing*/
+    function drawingManager(map) {
+        var overlaycomplete = function(e) {
+            console.log(e);
+            drawingObj.push(e);
+            overlays.push(e.overlay);
+        };
+        
+
+        var myDrawingManagerObject = new BMapLib.DrawingManager(map, {
+            isOpen: false, //是否开启绘制模式
+            drawingType: BMAP_DRAWING_MARKER,
+            enableDrawingTool: true,
+            enableCalculate: false,
+            drawingToolOptions: {
+                anchor: BMAP_ANCHOR_TOP_RIGHT,
+                offset: new BMap.Size(5, 35),
+                drawingTypes: [
+                    BMAP_DRAWING_MARKER,
+                    // BMAP_DRAWING_CIRCLE,
+                    BMAP_DRAWING_POLYLINE,
+                    BMAP_DRAWING_POLYGON,
+                    BMAP_DRAWING_RECTANGLE
+                ]
+            },
+            circleOptions: styleOptions, //圆的样式
+            polylineOptions: styleOptions, //线的样式
+            polygonOptions: styleOptions, //多边形的样式
+            rectangleOptions: styleOptions //矩形的样式
+
+        });
+        // myDrawingManagerObject.open();
+        //添加鼠标绘制工具监听事件，用于获取绘制结果
+        myDrawingManagerObject.addEventListener('overlaycomplete', overlaycomplete);
+
+    }
+    /*获得我的位置*/
+    function getMyPosition(map){
+      var myPosition = document.getElementById('myPosition');
+            myPosition.addEventListener('click', function(event) {
+                var geolocation = new BMap.Geolocation();
+                geolocation.getCurrentPosition(function(r){
+                    if(this.getStatus() == BMAP_STATUS_SUCCESS){
+                        var mk = new BMap.Marker(r.point);
+                        map.addOverlay(mk);
+                        // map.panTo(r.point);
+                        map.centerAndZoom(r.point,15);
+                        // alert('您的位置：'+r.point.lng+','+r.point.lat);
+                    }
+                    else {
+                        alert('定位失败，请重新定位'+this.getStatus());
+                    }        
+                },{enableHighAccuracy: true})
+            });          
+    }
+    /*测量距离  测量面积*/
+    function toolbarEvent(map) {
+        var getDis = document.getElementById('getDis'),
+            getArea = document.getElementById('getArea'),
+            distanceTool, area, myDrawingManagerObject;
+        getDis.addEventListener('click', function() {
+            closeOthers('getDis');
+            distanceTool = new BMapLib.DistanceTool(map);
+            distanceTool.open();
+            /*distanceTool.addEventListener("drawend",function(e){
+                console.log(e);
+                console.log(e.distance);
+            });*/
+        });
+        getArea.addEventListener('click', function() {
+            closeOthers('getArea');
+            /*area = new BMapLib.GeoUtils.getPolygonArea();
+            alert("共" + area.toFixed(2) + "平方米");
+            self.map.addOverlay(ply);*/
+            myDrawingManagerObject = new BMapLib.DrawingManager(map, {
+                isOpen: true,
+                drawingType: BMAP_DRAWING_MARKER,
+                enableDrawingTool: false,
+                enableCalculate: true,
+                polygonOptions: {
+                    strokeColor: "#ff6319",
+                    strokeWeight: "1"
+                }
+            });
+            myDrawingManagerObject.setDrawingMode(BMAP_DRAWING_POLYGON);
+            myDrawingManagerObject.open();
+            myDrawingManagerObject.addEventListener('polygoncomplete', function(e) {
+                console.log(e);
+            });
+        });
+
+        function closeOthers(whichIsOpen) {
+            switch (whichIsOpen) {
+                case 'getArea':
+                    if (distanceTool) distanceTool.close();
+                    break;
+                case 'getDis':
+                    if (myDrawingManagerObject) myDrawingManagerObject.close();
+                    break;
+            }
+        }
+    }
 
     function searchByStationName() {
         var localSearch = new BMap.LocalSearch(map);
@@ -329,18 +585,52 @@
 
 
     $('#sub').click(function() {
-        if ($("#address").val() == '') {
-            alert("地址信息不能为空！");
-            return false;
+            if (overlays.length == 0) {
+                if ($("#address").val() == '') {
+                    alert("地址信息不能为空！");
+                    return false;
+                }
+                if ($("#rent").val() == '') {
+                    alert("出租信息不能为空！");
+                    return false;
+                }
+                if ($("#location").val() == '') {
+                    alert("坐标信息不能为空！");
+                    return false;
+                }
+                add2DB();
+            } else {
+                if ($("#address").val()) {
+                    add2DB();
+                }
+                addOverlay2DB();
+            }
+
+
+        })
+        /*保存绘制的信息*/
+    function addOverlay2DB() {
+        for (var i = 0; i < drawingObj.length; i++) {
+            var drawingType = drawingObj[i].drawingMode,
+                geoJson;
+            if (drawingType == "circle") {
+
+            } else if (drawingType == "marker") {} else {
+                geoJson = JSON.stringify(drawingObj[i].overlay.ia);
+            }
+
+            $.post("<?php echo AJ_PATH;?>ceshimap/addOverlay2DB.php", {
+                drawingType: drawingType,
+                geoJson: geoJson
+            }, function(data) {
+                alert(data);
+            });
         }
-        if ($("#rent").val() == '') {
-            alert("出租信息不能为空！");
-            return false;
-        }
-        if ($("#location").val() == '') {
-            alert("坐标信息不能为空！");
-            return false;
-        }
+
+        drawingObj.length = 0;
+    }
+    /*保存地址信息*/
+    function add2DB() {
         $.post("<?php echo AJ_PATH;?>ceshimap/add2DB.php", {
             address: $("#address").val(),
             rent: $("#rent").val(),
@@ -351,14 +641,13 @@
             town: $("#town").val(),
             district: $("#district").val(),
             area: $("#area").val(),
-            sellingPrice: $("#sellingPrice").val()
+            sellingPrice: $("#sellingPrice").val(),
+            updateDate: formatDateTime()
         }, function(data) {
             alert(data);
         });
         clearInput();
-
-
-    })
+    }
 
     function clearInput() {
         // map.centerAndZoom('上海市',12);

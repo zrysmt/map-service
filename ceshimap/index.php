@@ -2,21 +2,17 @@
 define('AJ_REWRITE', true);
 require '../common.inc.php';
 defined('IN_AIJIACMS') or exit('Access Denied');
-$username=get_cookie('username');
-if(empty($username))
-{
-echo "您还没有登录3s后跳转登录页面!";
-header("refresh:3;url=http://sh.21changfang.com/member/login.php");
+/*$username=get_cookie('username');
+if(empty($username)){
+  echo "您还没有登录3s后跳转登录页面!";
+  header("refresh:3;url=http://sh.21changfang.com/member/login.php");
+}
+else{
+   if($username!='admin'){
+      echo "您没有访问权限！";
+   }
+   else{*/
 
-}
-else
-{
- if($username!='admin')
-{
- echo "您没有访问权限！";
-}
-else
-{
 $A = array();
 // $result = $db->query("SELECT * FROM {$AJ_PRE}ceshimap");
 $result = $db->query("SELECT * FROM {$AJ_PRE}ceshimap AS cm LEFT JOIN {$AJ_PRE}rent_setting AS rs ON cm.rent = rs.rent");
@@ -43,7 +39,8 @@ while($r3 = $db->fetch_array($result3)) {
 }
 
 include template('index', 'ceshimap');
-}
-}
+/*}
+
+}*/
 
  ?> 
