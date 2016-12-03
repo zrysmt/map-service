@@ -111,12 +111,27 @@
     #myPosition:hover{
         cursor: pointer;
     }
+    #searchByText{
+        position: absolute;
+        top: 66px;
+        left: 62px;
+    }
+    #searchByText input{
+        height: 30px;
+        width:7.5rem;
+        font-size: 14px;
+        padding-left: 10px;
+        /*line-height: 1.5;*/
+    }
     @media screen and (max-width: 320px){
         #dituContent {
             height: 440px;
         }
         #top-bar{
             height: 66px;
+        }
+        #searchByText{
+            top: 86px;
         }
     }
     @media screen and (max-width: 479.9px){
@@ -129,6 +144,10 @@
         #top-bar .welcome-log{
             display: none;
         }
+        #searchByText input{
+            width:120px;
+            font-size: 12px;
+        }
     }
     @media screen and (min-width: 480px){
         html{
@@ -140,6 +159,7 @@
         #top-bar .welcome-log{
             display: none;
         }
+      
     }
     @media screen and (min-width: 640px){
         html{
@@ -207,6 +227,10 @@
     </div>
     <!--百度地图容器-->
     <div id="dituContent"></div>
+    <div id="searchByText">
+        <input type="text" placeholder="回车确认搜索" id="address" />
+        <div id="r-result"></div>
+    </div>
     <img id="myPosition" src="<?php echo AJ_PATH;?>file/image/myPosition.png" alt="我的位置" />
 
 </body>
@@ -223,6 +247,7 @@
             this.getMyPosition();//定位
             this.addMapControl(); //向地图添加控件
             this.toolbarEvent();
+            this.searchByText();//搜索
             this.map.addEventListener("zoomend", function() {
                 var zoomSize = self.map.getZoom();
                 // console.log(zoomSize);
@@ -293,7 +318,49 @@
                     if (myDrawingManagerObject) myDrawingManagerObject.close();
                     break;
             }
-        }
+         }
+        },
+        /**
+         * [searchByText 搜索框]
+         * @return {[type]} [description]
+         */
+        searchByText:function(){
+            var self = this,
+                addressInput = document.getElementById('address'),
+                localSearch = new BMap.LocalSearch(self.map/*,{
+                    renderOptions: {map: self.map, panel: "r-result"}
+                }*/);
+            addressInput.addEventListener('keypress',function(){
+                if(event.keyCode == "13"){   
+                    localSearch.enableAutoViewport(); //允许自动调节窗体大小
+                    // map.clearOverlays(); //清空原来的标注
+                    var keyword = this.value;
+                    localSearch.setSearchCompleteCallback(function(searchResult) {
+                        if(localSearch.getStatus()==0){
+                            var poi = searchResult.getPoi(0);
+                            // self.serchByPoint(poi.point, 'flag');
+                            self.map.centerAndZoom(poi.point, 19);
+                            var marker = new BMap.Marker(new BMap.Point(poi.point.lng, poi.point.lat)       ); // 创建标注，为要查询的地方对应的经纬度
+                             marker.enableDragging();
+                            self.map.addOverlay(marker);
+                            var content = document.getElementById("address").value + "<br/><br/> 经度：" + poi.point.lng + "<br/>纬度：" + poi.point.lat;
+                            var infoWindow = new BMap.InfoWindow("<p style='font-size:14px;'>" +        content + "</p>");
+                            marker.addEventListener("click", function() {
+                                this.openInfoWindow(infoWindow);
+                            });
+                            // marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+                        }else{
+                            //失败
+                            // alert();
+                        }
+                        
+                    });
+                    localSearch.search(keyword, {
+                        forceLocal: true
+                    });
+                }
+            });
+            
         },
         getMyPosition:function(){
             var self = this,

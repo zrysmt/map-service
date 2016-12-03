@@ -178,6 +178,13 @@
     #myPosition:hover{
         cursor: pointer;
     }
+    /* 绘制 */
+    /* .BMapLib_Drawing .BMapLib_circle_hover {
+        display: none;
+    }
+    .BMapLib_Drawing .BMapLib_marker {
+        display: none;
+    } */
     @media screen and (max-width: 320px){
         #add-top-bar{
             height: 66px;
@@ -319,7 +326,7 @@
 
 
 
-    <script src="http://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
+    <script src="http://libs.baidu.com/jquery/1.9.0/jquery.min.js"></script>
     <script src="http://api.map.baidu.com/api?v=2.0&ak=TPrSyQXhBwEjWzfXzPw3iPXxqISq2idO"></script>
     <script src="http://api.map.baidu.com/library/MarkerTool/1.2/src/MarkerTool.js"></script>
     <script type="text/javascript" src="http://api.map.baidu.com/library/DistanceTool/1.2/src/DistanceTool_min.js"></script>
@@ -329,12 +336,12 @@
     <script type="text/javascript">
     var styleOptions = {
             strokeColor: "red", //边线颜色。
-            fillColor: "", //填充颜色。当参数为空时，圆形将没有填充效果。
+            fillColor: "red", //填充颜色。当参数为空时，圆形将没有填充效果。
             strokeWeight: 2, //边线的宽度，以像素为单位。
             strokeOpacity: 0.8, //边线透明度，取值范围0 - 1。
             fillOpacity: 0, //填充的透明度，取值范围0 - 1。
             strokeStyle: 'solid' //边线的样式，solid或dashed。
-        },marker,
+        },marker,baseNum=1000000,
     map = new BMap.Map("container");
     map.centerAndZoom("上海", 12);
     map.setMapType(BMAP_HYBRID_MAP);
@@ -366,7 +373,7 @@
     toolbarEvent(map);
     var overlays = [],
         drawingObj = [];
-    drawingManager(map);
+    drawingManager(map);//绘制管理
 
     setTimeout(function(){
         loadAllOverlays(map); //加载绘制的图形
@@ -394,6 +401,8 @@
                 case "rectangle":
                     if('{$v['geoJson']}'){
                         geoJson = JSON.parse('{$v['geoJson']}');
+                        // styleOptions["data-id"] = '{$v['id']}';
+                        styleOptions.fillOpacity = '{$v['id']}'/baseNum;//存放id
                         var poly = new BMap.Polygon(geoJson,styleOptions);
                         map.addOverlay(poly);
                     }
@@ -408,21 +417,20 @@
         var overlaycomplete = function(e) {
             console.log(e);
             drawingObj.push(e);
+            addOverlay2DB(drawingObj);//完成之后自动提交
             overlays.push(e.overlay);
         };
         
-
         var myDrawingManagerObject = new BMapLib.DrawingManager(map, {
             isOpen: false, //是否开启绘制模式
-            drawingType: BMAP_DRAWING_MARKER,
             enableDrawingTool: true,
             enableCalculate: false,
             drawingToolOptions: {
                 anchor: BMAP_ANCHOR_TOP_RIGHT,
                 offset: new BMap.Size(5, 35),
-                drawingTypes: [
+                drawingModes: [
                     BMAP_DRAWING_MARKER,
-                    // BMAP_DRAWING_CIRCLE,
+                    BMAP_DRAWING_CIRCLE,
                     BMAP_DRAWING_POLYLINE,
                     BMAP_DRAWING_POLYGON,
                     BMAP_DRAWING_RECTANGLE
@@ -438,6 +446,56 @@
         //添加鼠标绘制工具监听事件，用于获取绘制结果
         myDrawingManagerObject.addEventListener('overlaycomplete', overlaycomplete);
 
+        var nodeName = "",pathTarget="",pathId="";
+        $('body').on('click keydown', function(event) {
+            event.preventDefault();
+            var keyCode = "",
+                event = event || window.event;
+            keyCode = event.keyCode;
+            //撤销
+            if (event.ctrlKey == true && keyCode == "90") {
+                if (drawingManager) {
+                    // drawingManager.close();
+                    map.removeOverlay(overlays.pop());
+                    //TODO 从数据库中删除
+                }
+            }
+            //是绘制的图形
+            if (event.type == "click"){
+                nodeName = event.target.nodeName;
+            } 
+            if (event.type == "click" && nodeName == "path") {
+                console.log("this is a： "+nodeName);
+                pathTarget = event.target;
+                console.log(pathTarget);
+                console.log(pathTarget.attributes["fill-opacity"].nodeValue);
+                pathId = pathTarget.attributes["fill-opacity"].nodeValue * baseNum;
+                console.log(pathId);
+                //可编辑
+                // pathTarget.enableEditing();
+            }
+            //是绘制的图形，按住delete删除
+            if (event.type=="keydown"&&nodeName == "path" && keyCode == "46") {
+                console.log("删除");
+                console.log(pathTarget);
+                map.removeOverlay(pathTarget);
+                deleteOverlayFromDB(pathId);
+            }
+            // }
+        });
+    }
+    /**
+     * [deleteOverlayFromDB 从数据库中删除]
+     * @param  {[type]} pathId [id号]
+     */
+    function deleteOverlayFromDB(pathId){
+        $.post("<?php echo AJ_PATH;?>ceshimap/deleteOverlayFromDB.php",{
+            "pathId":pathId
+        },function(data){
+            if(data == "0"){
+                alert("删除失败！");
+            }
+        });
     }
     /*获得我的位置*/
     function getMyPosition(map){
@@ -509,7 +567,7 @@
     function searchByStationName() {
         var localSearch = new BMap.LocalSearch(map);
         localSearch.enableAutoViewport(); //允许自动调节窗体大小
-        map.clearOverlays(); //清空原来的标注
+        // map.clearOverlays(); //清空原来的标注
         var keyword = document.getElementById("address").value;
         localSearch.setSearchCompleteCallback(function(searchResult) {
             var poi = searchResult.getPoi(0);
@@ -603,13 +661,13 @@
                 if ($("#address").val()) {
                     add2DB();
                 }
-                addOverlay2DB();
+                // addOverlay2DB();
             }
 
 
         })
         /*保存绘制的信息*/
-    function addOverlay2DB() {
+    function addOverlay2DB(drawingObj) {
         for (var i = 0; i < drawingObj.length; i++) {
             var drawingType = drawingObj[i].drawingMode,
                 geoJson;
@@ -623,12 +681,15 @@
                 drawingType: drawingType,
                 geoJson: geoJson
             }, function(data) {
-                alert(data);
+                if(data == "0"){
+                    alert("添加失败！");
+                }
             });
         }
 
         drawingObj.length = 0;
     }
+
     /*保存地址信息*/
     function add2DB() {
         $.post("<?php echo AJ_PATH;?>ceshimap/add2DB.php", {

@@ -7,8 +7,8 @@ $geoJson = trim($_POST['geoJson']);
 
 $result=$db->query("INSERT INTO {$AJ_PRE}ceshimap_overlay (drawingType,geoJson) VALUES ('$drawingType','$geoJson')"); 
 if(!$result)
-echo "添加失败！";
+echo "0";
 else
-echo "添加成功！";
+echo "1";
 
  ?>
