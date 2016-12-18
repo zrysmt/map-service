@@ -29,7 +29,9 @@ use
             ->setFormatter( 'Format::ifEmpty', null ),
         Field::inst( 'sellingPrice' )
             ->validator( 'Validate::numeric' )
-            ->setFormatter( 'Format::ifEmpty', null )
+            ->setFormatter( 'Format::ifEmpty', null ),
+        Field::inst( 'updateDate' )
+
     )
     ->process( $_POST )
     ->json();

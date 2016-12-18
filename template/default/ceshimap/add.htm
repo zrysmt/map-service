@@ -178,6 +178,15 @@
     #myPosition:hover{
         cursor: pointer;
     }
+    #selectStyle{
+        display: none;
+        position: absolute;
+        right: 40px;
+        top: 200px;
+        padding: 8px;
+        background-color: #f5f5f5;
+        z-index: 99999;
+    }
     /* 绘制 */
     /* .BMapLib_Drawing .BMapLib_circle_hover {
         display: none;
@@ -302,7 +311,7 @@
                 <option value="{$val['rent']}">{$val['rent']}</option>
                 {/loop}
             </select>
-            <!-- <img src="<?php echo AJ_PATH;?>file/image/seting.png" id="rentSetting" alt="设置" title="修改,添加出租信息"> -->
+            <img src="<?php echo AJ_PATH;?>file/image/seting.png" id="rentSetting" alt="设置" title="修改,添加出租信息">
             <div class="spacer"></div>
             <label class="province">省份:</label>
             <input type="text" id="province" class="input-small province" />
@@ -320,11 +329,18 @@
             <input class="sub" id="sub" type="button" value="提交" />
         </form>
     </div>
-    <!-- <div id="rentSettingDiv"></div> -->
+    <div id="rentSettingDiv"></div>
     <div id="container"> </div>
     <img id="myPosition" src="<?php echo AJ_PATH;?>file/image/myPosition.png" alt="我的位置" />
-
-
+    <!-- 选择样式-->  
+    <div id="selectStyle">
+        <p>选择颜色</p>
+        <input type="radio" value="red" name="selectStyle"  >红色
+        <input type="radio" value="yellow" name="selectStyle">黄色
+        <input type="radio" value="blue" name="selectStyle">蓝色
+        <input type="radio" value="green" name="selectStyle">绿色
+        <input type="radio" value="black" name="selectStyle">黑色
+    </div>
 
     <script src="http://libs.baidu.com/jquery/1.9.0/jquery.min.js"></script>
     <script src="http://api.map.baidu.com/api?v=2.0&ak=TPrSyQXhBwEjWzfXzPw3iPXxqISq2idO"></script>
@@ -334,395 +350,493 @@
     <script type="text/javascript" src="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.js"></script>
     <script src="<?php echo AJ_STATIC;?>file/script/myCommon.js"></script>
     <script type="text/javascript">
-    var styleOptions = {
-            strokeColor: "red", //边线颜色。
-            fillColor: "red", //填充颜色。当参数为空时，圆形将没有填充效果。
-            strokeWeight: 2, //边线的宽度，以像素为单位。
-            strokeOpacity: 0.8, //边线透明度，取值范围0 - 1。
-            fillOpacity: 0, //填充的透明度，取值范围0 - 1。
-            strokeStyle: 'solid' //边线的样式，solid或dashed。
-        },marker,baseNum=1000000,
-    map = new BMap.Map("container");
-    map.centerAndZoom("上海", 12);
-    map.setMapType(BMAP_HYBRID_MAP);
-    // map.enableContinuousZoom(); //启用地图惯性拖拽，默认禁用
-    map.enableScrollWheelZoom(); //启用滚轮放大缩小，默认禁用
-    map.enableKeyboard();
-
-    map.addControl(new BMap.NavigationControl()); //添加默认缩放平移控件
-    // map.addControl(new BMap.OverviewMapControl({
-    //     isOpen: true,
-    //     anchor: BMAP_ANCHOR_BOTTOM_RIGHT
-    // })); //右下角，打开
-    var ctrl_ove = new BMap.OverviewMapControl({
-        anchor: BMAP_ANCHOR_BOTTOM_RIGHT,
-        isOpen: 1
-    });
-    map.addControl(ctrl_ove);
-    //向地图中添加比例尺控件
-    var ctrl_sca = new BMap.ScaleControl({
-        anchor: BMAP_ANCHOR_BOTTOM_LEFT
-    });
-    map.addControl(ctrl_sca);
-    // 向地图中添加地图切换控件
-    var ctrl_type = new BMap.MapTypeControl({
-        anchor: BMAP_ANCHOR_TOP_RIGHT
-    });
-    map.addControl(ctrl_type);
-
-    toolbarEvent(map);
-    var overlays = [],
-        drawingObj = [];
-    drawingManager(map);//绘制管理
-
-    setTimeout(function(){
-        loadAllOverlays(map); //加载绘制的图形
-        loadAllMarkers(map);
-    },0);
-    getMyPosition(map);
-    /*加载所有的标记*/
-    function loadAllMarkers(map){
-        {loop $markers $k $v}
-            var location = '{$v['location']}',
-            p0 = location.split(',')[0],
-            p1 = location.split(',')[1],
-            point = new BMap.Point(p0,p1);
-            var marker = new BMap.Marker(point);
-            map.addOverlay(marker);
-
-        {/loop}
-    }
-    /*加载所有的多边形*/
-    function loadAllOverlays(map){
-        {loop $overlays $k $v}
-            var drawingType = "{$v['drawingType']}";
-            switch(drawingType){
-                case "polygon":
-                case "rectangle":
-                    if('{$v['geoJson']}'){
-                        geoJson = JSON.parse('{$v['geoJson']}');
-                        // styleOptions["data-id"] = '{$v['id']}';
-                        styleOptions.fillOpacity = '{$v['id']}'/baseNum;//存放id
-                        var poly = new BMap.Polygon(geoJson,styleOptions);
-                        map.addOverlay(poly);
-                    }
-                    break;
-                case "polylin":
-                    break;
-            }
-        {/loop}
-    }
-    /*Drawing*/
-    function drawingManager(map) {
-        var overlaycomplete = function(e) {
-            console.log(e);
-            drawingObj.push(e);
-            addOverlay2DB(drawingObj);//完成之后自动提交
-            overlays.push(e.overlay);
-        };
-        
-        var myDrawingManagerObject = new BMapLib.DrawingManager(map, {
-            isOpen: false, //是否开启绘制模式
-            enableDrawingTool: true,
-            enableCalculate: false,
-            drawingToolOptions: {
-                anchor: BMAP_ANCHOR_TOP_RIGHT,
-                offset: new BMap.Size(5, 35),
-                drawingModes: [
-                    BMAP_DRAWING_MARKER,
-                    BMAP_DRAWING_CIRCLE,
-                    BMAP_DRAWING_POLYLINE,
-                    BMAP_DRAWING_POLYGON,
-                    BMAP_DRAWING_RECTANGLE
-                ]
+    $(function(){
+        var styleOptions = {
+                strokeColor: "red", //边线颜色。
+                fillColor: "red", //填充颜色。当参数为空时，圆形将没有填充效果。
+                strokeWeight: 2, //边线的宽度，以像素为单位。
+                strokeOpacity: 0.8, //边线透明度，取值范围0 - 1。
+                fillOpacity: 0, //填充的透明度，取值范围0 - 1。
+                strokeStyle: 'solid' //边线的样式，solid或dashed。
+            },marker,markerStyleOptions={
+                icon:new BMap.Symbol(BMap_Symbol_SHAPE_POINT, {
+                    // anchor: jsonIcon.l, //位置偏移
+                    scale: 1.2, //1.5, //图标缩放大小
+                    fillColor: "red", //填充颜色
+                    strokeColor: "red",
+                    fillOpacity: 1 //填充透明度
+                })
             },
-            circleOptions: styleOptions, //圆的样式
-            polylineOptions: styleOptions, //线的样式
-            polygonOptions: styleOptions, //多边形的样式
-            rectangleOptions: styleOptions //矩形的样式
+        baseNum=1000000,
+        map = new BMap.Map("container");
+        map.centerAndZoom("上海", 12);
+        map.setMapType(BMAP_HYBRID_MAP);
+        // map.enableContinuousZoom(); //启用地图惯性拖拽，默认禁用
+        map.enableScrollWheelZoom(); //启用滚轮放大缩小，默认禁用
+        map.enableKeyboard();
 
+        map.addControl(new BMap.NavigationControl()); //添加默认缩放平移控件
+        // map.addControl(new BMap.OverviewMapControl({
+        //     isOpen: true,
+        //     anchor: BMAP_ANCHOR_BOTTOM_RIGHT
+        // })); //右下角，打开
+        var ctrl_ove = new BMap.OverviewMapControl({
+            anchor: BMAP_ANCHOR_BOTTOM_RIGHT,
+            isOpen: 1
         });
-        // myDrawingManagerObject.open();
-        //添加鼠标绘制工具监听事件，用于获取绘制结果
-        myDrawingManagerObject.addEventListener('overlaycomplete', overlaycomplete);
 
-        var nodeName = "",pathTarget="",pathId="";
-        $('body').on('click keydown', function(event) {
-            event.preventDefault();
-            var keyCode = "",
-                event = event || window.event;
-            keyCode = event.keyCode;
-            //撤销
-            if (event.ctrlKey == true && keyCode == "90") {
-                if (drawingManager) {
-                    // drawingManager.close();
-                    map.removeOverlay(overlays.pop());
-                    //TODO 从数据库中删除
+        map.addControl(ctrl_ove);
+        //向地图中添加比例尺控件
+        var ctrl_sca = new BMap.ScaleControl({
+            anchor: BMAP_ANCHOR_BOTTOM_LEFT
+        });
+        map.addControl(ctrl_sca);
+        // 向地图中添加地图切换控件
+        var ctrl_type = new BMap.MapTypeControl({
+            anchor: BMAP_ANCHOR_TOP_RIGHT
+        });
+        map.addControl(ctrl_type);
+
+        toolbarEvent(map);//工具条
+        var overlays = [],
+            drawingObj = [];
+
+        drawingManager(map);//绘制管理
+
+        setTimeout(function(){
+            loadAllOverlays(map); //加载绘制的图形
+            loadAllMarkers(map);
+        },100);
+        getMyPosition(map);
+        /*加载所有的标记*/
+        function loadAllMarkers(map){
+            {loop $markers $k $v}
+                var location = '{$v['location']}',
+                p0 = location.split(',')[0],
+                p1 = location.split(',')[1],
+                point = new BMap.Point(p0,p1);
+                var marker = new BMap.Marker(point);
+                map.addOverlay(marker);
+
+            {/loop}
+        }
+        /*加载所有的多边形*/
+        function loadAllOverlays(map){
+            {loop $overlays $k $v}
+                var drawingType = "{$v['drawingType']}";
+                switch(drawingType){
+                    case "marker":
+                        if(!!'{$v['geoJson']}'){
+                            var location = '{$v['geoJson']}',
+                            p0 = parseFloat(location.split(',')[0]),
+                            p1 = parseFloat(location.split(',')[1]),
+                            pot = new BMap.Point(p0,p1);
+                            if(!!'{$v['styleOptions']}'){
+                                var newMarkerStyleOptions = {
+                                     icon:new BMap.Symbol(BMap_Symbol_SHAPE_POINT, {
+                                          scale: 1.2, //1.5, //图标缩放大小
+                                          fillColor: "red", //填充颜色
+                                          strokeColor: "red",
+                                          fillOpacity: 1 //填充透明度
+                                     })
+                                };
+                                var styleOpt = JSON.parse('{$v['styleOptions']}');
+                                if(styleOpt.fillColor){ newMarkerStyleOptions.icon.setFillColor(styleOpt.fillColor);}
+                                if(styleOpt.strokeColor){ newMarkerStyleOptions.icon.setStrokeColor(styleOpt.strokeColor);}//strokeColor和fillColor 一样
+                        
+                            }
+                            var marker1 = new BMap.Marker(pot,newMarkerStyleOptions||markerStyleOptions);
+                            map.addOverlay(marker1);
+                        }
+                        
+                        break;
+                    case "polygon":
+                    case "rectangle":
+                        if('{$v['geoJson']}'){
+                            var geoJson = JSON.parse('{$v['geoJson']}');
+                            // styleOptions["data-id"] = '{$v['id']}';
+                            styleOptions.fillOpacity = '{$v['id']}'/baseNum;//存放id
+                            if('{$v['styleOptions']}'){
+                                var styleOpt = JSON.parse('{$v['styleOptions']}');
+                                if(styleOpt.strokeColor) styleOptions.strokeColor = styleOpt.strokeColor;
+                            }
+                            var poly = new BMap.Polygon(geoJson,styleOptions);
+                            map.addOverlay(poly);
+                        }
+                        break;
+                    case "polylin":
+                        break;
                 }
-            }
-            //是绘制的图形
-            if (event.type == "click"){
-                nodeName = event.target.nodeName;
-            } 
-            if (event.type == "click" && nodeName == "path") {
-                console.log("this is a： "+nodeName);
-                pathTarget = event.target;
-                console.log(pathTarget);
-                console.log(pathTarget.attributes["fill-opacity"].nodeValue);
-                pathId = pathTarget.attributes["fill-opacity"].nodeValue * baseNum;
-                console.log(pathId);
-                //可编辑
-                // pathTarget.enableEditing();
-            }
-            //是绘制的图形，按住delete删除
-            if (event.type=="keydown"&&nodeName == "path" && keyCode == "46") {
-                console.log("删除");
-                console.log(pathTarget);
-                map.removeOverlay(pathTarget);
-                deleteOverlayFromDB(pathId);
-            }
-            // }
-        });
-    }
-    /**
-     * [deleteOverlayFromDB 从数据库中删除]
-     * @param  {[type]} pathId [id号]
-     */
-    function deleteOverlayFromDB(pathId){
-        $.post("<?php echo AJ_PATH;?>ceshimap/deleteOverlayFromDB.php",{
-            "pathId":pathId
-        },function(data){
-            if(data == "0"){
-                alert("删除失败！");
-            }
-        });
-    }
-    /*获得我的位置*/
-    function getMyPosition(map){
-      var myPosition = document.getElementById('myPosition');
-            myPosition.addEventListener('click', function(event) {
-                var geolocation = new BMap.Geolocation();
-                geolocation.getCurrentPosition(function(r){
-                    if(this.getStatus() == BMAP_STATUS_SUCCESS){
-                        var mk = new BMap.Marker(r.point);
-                        map.addOverlay(mk);
-                        // map.panTo(r.point);
-                        map.centerAndZoom(r.point,15);
-                        // alert('您的位置：'+r.point.lng+','+r.point.lat);
+            {/loop}
+        }
+        /*Drawing*/
+        function drawingManager(map) {
+            var overlaycomplete = function(e) {
+                drawingObj.push(e);
+                addOverlay2DB(drawingObj);//完成之后自动提交
+                overlays.push(e.overlay);
+                if(e.overlay.point){
+                     var overlayCoordinate = map.pointToOverlayPixel(e.overlay.point);
+                     console.info(e.overlay.point,overlayCoordinate);
+
+                } 
+            };
+            
+            var myDrawingManagerObject = new BMapLib.DrawingManager(map, {
+                isOpen: false, //是否开启绘制模式
+                enableDrawingTool: true,
+                enableCalculate: false,
+                drawingToolOptions: {
+                    anchor: BMAP_ANCHOR_TOP_RIGHT,
+                    offset: new BMap.Size(5, 35),
+                    drawingModes: [
+                        BMAP_DRAWING_MARKER,
+                        BMAP_DRAWING_CIRCLE,
+                        BMAP_DRAWING_POLYLINE,
+                        BMAP_DRAWING_POLYGON,
+                        BMAP_DRAWING_RECTANGLE
+                    ]
+                },
+                markerOptions:markerStyleOptions,
+                circleOptions: styleOptions, //圆的样式
+                polylineOptions: styleOptions, //线的样式
+                polygonOptions: styleOptions, //多边形的样式
+                rectangleOptions: styleOptions //矩形的样式
+
+            });
+            //添加鼠标绘制工具监听事件，用于获取绘制结果
+            myDrawingManagerObject.addEventListener('overlaycomplete', overlaycomplete);
+
+            var nodeName = "",pathTarget="",pathId="",className="",newPoint={},newPointStr="";
+            $('body').on('click keydown',/*"#container",*/ function(event) {
+                // event.preventDefault();
+                var keyCode = "",
+                    event = event || window.event;
+                keyCode = event.keyCode;
+                if(event.type=="click"&&(event.toElement.id ==="stylized"||event.toElement.id ==="add-top-bar")) return;
+                console.log(event);
+                //撤销ctrl + Z
+                if (event.ctrlKey == true && keyCode == "90") {
+                    if (drawingManager) {
+                        // drawingManager.close();
+                        map.removeOverlay(overlays.pop());
+                        //TODO 从数据库中删除
                     }
-                    else {
-                        alert('定位失败，请重新定位'+this.getStatus());
-                    }        
-                },{enableHighAccuracy: true})
-            });          
-    }
-    /*测量距离  测量面积*/
-    function toolbarEvent(map) {
-        var getDis = document.getElementById('getDis'),
-            getArea = document.getElementById('getArea'),
-            distanceTool, area, myDrawingManagerObject;
-        getDis.addEventListener('click', function() {
-            closeOthers('getDis');
-            distanceTool = new BMapLib.DistanceTool(map);
-            distanceTool.open();
-            /*distanceTool.addEventListener("drawend",function(e){
-                console.log(e);
-                console.log(e.distance);
-            });*/
-        });
-        getArea.addEventListener('click', function() {
-            closeOthers('getArea');
-            /*area = new BMapLib.GeoUtils.getPolygonArea();
-            alert("共" + area.toFixed(2) + "平方米");
-            self.map.addOverlay(ply);*/
-            myDrawingManagerObject = new BMapLib.DrawingManager(map, {
-                isOpen: true,
-                drawingType: BMAP_DRAWING_MARKER,
-                enableDrawingTool: false,
-                enableCalculate: true,
-                polygonOptions: {
-                    strokeColor: "#ff6319",
-                    strokeWeight: "1"
                 }
+                //是绘制的图形
+                if (event.type == "click"){
+                    nodeName = event.target.nodeName;
+                    pathTarget = event.target;
+                } 
+                if (event.type == "click" && nodeName == "path") {
+                    pathId = pathTarget.attributes["fill-opacity"].nodeValue * baseNum;
+                    console.log(pathId);
+                    //可编辑
+                    // pathTarget.enableEditing();
+                }
+                //marker
+                if (event.type == "click" && nodeName == "SPAN" && event.target.className=="BMap_Marker BMap_noprint") {
+                    className = "BMap_Marker BMap_noprint";
+                    var left = parseInt(event.target.style['left']),
+                     top = parseInt(event.target.style['top']);
+                    var pixel = new BMap.Pixel(left+11,top+30);
+                    newPoint = map.overlayPixelToPoint(pixel);
+                    newPointStr = newPoint.lng+","+newPoint.lat;
+                    console.log(pixel,newPoint,newPointStr);
+                }
+                //是绘制的图形，按住delete删除
+                if (event.type=="keydown" && keyCode == "46") {
+                    if(nodeName == "path"){
+                       console.log("delete:"+keyCode);
+                       map.removeOverlay(pathTarget);
+                       deleteOverlayFromDB("path",pathId); 
+                    }else if( className == "BMap_Marker BMap_noprint"){//是点
+                       console.log("delete marker:"+keyCode);
+                       var zIndex = $(pathTarget).css("z-index");
+                       console.warn(zIndex);
+                       $('body').find("span.BMap_Marker").filter(function(){
+                           if($(this).css("z-index")== zIndex) $(this).css('display', 'none');
+                        });
+                       deleteOverlayFromDB("marker",newPointStr); 
+                    }
+                }
+                // }
             });
-            myDrawingManagerObject.setDrawingMode(BMAP_DRAWING_POLYGON);
-            myDrawingManagerObject.open();
-            myDrawingManagerObject.addEventListener('polygoncomplete', function(e) {
-                console.log(e);
-            });
-        });
-
-        function closeOthers(whichIsOpen) {
-            switch (whichIsOpen) {
-                case 'getArea':
-                    if (distanceTool) distanceTool.close();
-                    break;
-                case 'getDis':
-                    if (myDrawingManagerObject) myDrawingManagerObject.close();
-                    break;
-            }
         }
-    }
-
-    function searchByStationName() {
-        var localSearch = new BMap.LocalSearch(map);
-        localSearch.enableAutoViewport(); //允许自动调节窗体大小
-        // map.clearOverlays(); //清空原来的标注
-        var keyword = document.getElementById("address").value;
-        localSearch.setSearchCompleteCallback(function(searchResult) {
-            var poi = searchResult.getPoi(0);
-            document.getElementById("location").value = poi.point.lng + "," + poi.point.lat;
-            serchByPoint(poi.point, 'flag');
-            marker = new BMap.Marker(new BMap.Point(poi.point.lng, poi.point.lat)); // 创建标注，为要查询的地方对应的经纬度
-            marker.enableDragging();
-            map.addOverlay(marker);
-            markerDrager(marker);
-            var content = document.getElementById("address").value + "<br/><br/>经度：" + poi.point.lng + "<br/>纬度：" + poi.point.lat;
-            var infoWindow = new BMap.InfoWindow("<p style='font-size:14px;'>" + content + "</p>");
-            marker.addEventListener("click", function() {
-                this.openInfoWindow(infoWindow);
-            });
-            // marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
-        });
-        localSearch.search(keyword, {
-            forceLocal: true
-        });
-    }
-
-    function markerDrager(marker) {
-        marker.addEventListener('dragend', function() {
-            document.getElementById("location").value = marker.point.lng + ',' + marker.point.lat;
-            // console.log(marker.getPostion());
-            serchByPoint(marker.point);
-        });
-    }
-
-    function serchByPoint(point, f) {
-        var arg = Array.prototype.slice.apply(arguments);
-        map.centerAndZoom(point, 19);
-        var geoc = new BMap.Geocoder();
-        geoc.getLocation(point, function(rs) {
-            var addComp = rs.addressComponents;
-            if (!arg[1]) {
-                document.getElementById("address").value = addComp.street + addComp.streetNumber;
-            }
-            $('#province').val(addComp.province);
-            $('#city').val(addComp.city);
-            $('#district').val(addComp.district);
-            if (rs.business) {
-                $('#town').val(rs.business + '镇');
-            }
-        });
-
-    }
-    $('#getPos').click(function(event) {
-        map.clearOverlays();
-        document.getElementById("location").value = '';
-        // var pushpin = new BMap.PushpinTool(map);
-        var mkrTool = new BMapLib.MarkerTool(map, {
-            autoClose: true,
-            followText: "添加标注获取坐标"
-        });
-        mkrTool.open();
-        mkrTool.addEventListener("markend", function(e) {
-            e.marker.enableDragging();
-            markerDrager(e.marker);
-            var markerPoint = e.marker.point;
-            serchByPoint(markerPoint);
-            document.getElementById("location").value = markerPoint.lng + ',' + markerPoint.lat;
-
-        });
-    });
-    /*$('#rentSetting').click(function(event) {
-        var json;
-        {loop $A $key $val}
-            var item = {"rent":"{$val['rent']}","color":"{$val['color']}"};
-        {/loop}
-        $('#rentSettingDiv').html();
-    });*/
-
-
-    $('#sub').click(function() {
-            if (overlays.length == 0) {
-                if ($("#address").val() == '') {
-                    alert("地址信息不能为空！");
-                    return false;
-                }
-                if ($("#rent").val() == '') {
-                    alert("出租信息不能为空！");
-                    return false;
-                }
-                if ($("#location").val() == '') {
-                    alert("坐标信息不能为空！");
-                    return false;
-                }
-                add2DB();
-            } else {
-                if ($("#address").val()) {
-                    add2DB();
-                }
-                // addOverlay2DB();
-            }
-
-
-        })
-        /*保存绘制的信息*/
-    function addOverlay2DB(drawingObj) {
-        for (var i = 0; i < drawingObj.length; i++) {
-            var drawingType = drawingObj[i].drawingMode,
-                geoJson;
-            if (drawingType == "circle") {
-
-            } else if (drawingType == "marker") {} else {
-                geoJson = JSON.stringify(drawingObj[i].overlay.ia);
-            }
-
-            $.post("<?php echo AJ_PATH;?>ceshimap/addOverlay2DB.php", {
-                drawingType: drawingType,
-                geoJson: geoJson
-            }, function(data) {
+        /**
+         * [deleteOverlayFromDB 从数据库中删除]
+         * @param  {[type]} pathId [id号]
+         */
+        function deleteOverlayFromDB(type,byField){
+            $.post("<?php echo AJ_PATH;?>ceshimap/deleteOverlayFromDB.php",{
+                "type":type,
+                "byField":byField,
+            },function(data){
                 if(data == "0"){
-                    alert("添加失败！");
+                    alert("删除失败！");
                 }
             });
         }
+        /*获得我的位置*/
+        function getMyPosition(map){
+          var myPosition = document.getElementById('myPosition');
+                myPosition.addEventListener('click', function(event) {
+                    var geolocation = new BMap.Geolocation();
+                    geolocation.getCurrentPosition(function(r){
+                        if(this.getStatus() == BMAP_STATUS_SUCCESS){
+                            var mk = new BMap.Marker(r.point);
+                            map.addOverlay(mk);
+                            // map.panTo(r.point);
+                            map.centerAndZoom(r.point,15);
+                            // alert('您的位置：'+r.point.lng+','+r.point.lat);
+                        }
+                        else {
+                            alert('定位失败，请重新定位'+this.getStatus());
+                        }        
+                    },{enableHighAccuracy: true})
+                });          
+        }
+        /*测量距离  测量面积*/
+        function toolbarEvent(map) {
+            var getDis = document.getElementById('getDis'),
+                getArea = document.getElementById('getArea'),
+                distanceTool, area, myDrawingManagerObject;
+            getDis.addEventListener('click', function() {
+                closeOthers('getDis');
+                distanceTool = new BMapLib.DistanceTool(map);
+                distanceTool.open();
+                /*distanceTool.addEventListener("drawend",function(e){
+                    console.log(e);
+                    console.log(e.distance);
+                });*/
+            });
+            getArea.addEventListener('click', function() {
+                closeOthers('getArea');
+                /*area = new BMapLib.GeoUtils.getPolygonArea();
+                alert("共" + area.toFixed(2) + "平方米");
+                self.map.addOverlay(ply);*/
+                myDrawingManagerObject = new BMapLib.DrawingManager(map, {
+                    isOpen: true,
+                    drawingType: BMAP_DRAWING_MARKER,
+                    enableDrawingTool: false,
+                    enableCalculate: true,
+                    polygonOptions: {
+                        strokeColor: "#ff6319",
+                        strokeWeight: "1"
+                    }
+                });
+                myDrawingManagerObject.setDrawingMode(BMAP_DRAWING_POLYGON);
+                myDrawingManagerObject.open();
+                myDrawingManagerObject.addEventListener('polygoncomplete', function(e) {
+                    console.log(e);
+                });
+            });
 
-        drawingObj.length = 0;
-    }
+            function closeOthers(whichIsOpen) {
+                switch (whichIsOpen) {
+                    case 'getArea':
+                        if (distanceTool) distanceTool.close();
+                        break;
+                    case 'getDis':
+                        if (myDrawingManagerObject) myDrawingManagerObject.close();
+                        break;
+                }
+            }
+        }
 
-    /*保存地址信息*/
-    function add2DB() {
-        $.post("<?php echo AJ_PATH;?>ceshimap/add2DB.php", {
-            address: $("#address").val(),
-            rent: $("#rent").val(),
-            location: $("#location").val(),
-            province: $("#province").val(),
-            city: $("#city").val(),
-            district: $("#district").val(),
-            town: $("#town").val(),
-            district: $("#district").val(),
-            area: $("#area").val(),
-            sellingPrice: $("#sellingPrice").val(),
-            updateDate: formatDateTime()
-        }, function(data) {
-            alert(data);
+        function searchByStationName() {
+            var localSearch = new BMap.LocalSearch(map);
+            localSearch.enableAutoViewport(); //允许自动调节窗体大小
+            // map.clearOverlays(); //清空原来的标注
+            var keyword = document.getElementById("address").value;
+            localSearch.setSearchCompleteCallback(function(searchResult) {
+                var poi = searchResult.getPoi(0);
+                document.getElementById("location").value = poi.point.lng + "," + poi.point.lat;
+                serchByPoint(poi.point, 'flag');
+                marker = new BMap.Marker(new BMap.Point(poi.point.lng, poi.point.lat)); // 创建标注，为要查询的地方对应的经纬度
+                marker.enableDragging();
+                map.addOverlay(marker);
+                markerDrager(marker);
+                var content = document.getElementById("address").value + "<br/><br/>经度：" + poi.point.lng + "<br/>纬度：" + poi.point.lat;
+                var infoWindow = new BMap.InfoWindow("<p style='font-size:14px;'>" + content + "</p>");
+                marker.addEventListener("click", function() {
+                    this.openInfoWindow(infoWindow);
+                });
+                // marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+            });
+            localSearch.search(keyword, {
+                forceLocal: true
+            });
+        }
+
+        function markerDrager(marker) {
+            marker.addEventListener('dragend', function() {
+                document.getElementById("location").value = marker.point.lng + ',' + marker.point.lat;
+                // console.log(marker.getPostion());
+                serchByPoint(marker.point);
+            });
+        }
+
+        function serchByPoint(point, f) {
+            var arg = Array.prototype.slice.apply(arguments);
+            map.centerAndZoom(point, 19);
+            var geoc = new BMap.Geocoder();
+            geoc.getLocation(point, function(rs) {
+                var addComp = rs.addressComponents;
+                if (!arg[1]) {
+                    document.getElementById("address").value = addComp.street + addComp.streetNumber;
+                }
+                $('#province').val(addComp.province);
+                $('#city').val(addComp.city);
+                $('#district').val(addComp.district);
+                if (rs.business) {
+                    $('#town').val(rs.business + '镇');
+                }
+            });
+
+        }
+        $('#getPos').click(function(event) {
+            // map.clearOverlays();
+            document.getElementById("location").value = '';
+            // var pushpin = new BMap.PushpinTool(map);
+            var mkrTool = new BMapLib.MarkerTool(map, {
+                autoClose: true,
+                followText: "添加标注获取坐标"
+            });
+            mkrTool.open();
+            mkrTool.addEventListener("markend", function(e) {
+                e.marker.enableDragging();
+                markerDrager(e.marker);
+                var markerPoint = e.marker.point;
+                serchByPoint(markerPoint);
+                document.getElementById("location").value = markerPoint.lng + ',' + markerPoint.lat;
+
+            });
         });
-        clearInput();
-    }
+        /*$('#rentSetting').click(function(event) {
+            var json;
+            {loop $A $key $val}
+                var item = {"rent":"{$val['rent']}","color":"{$val['color']}"};
+            {/loop}
+            $('#rentSettingDiv').html();
+        });*/
 
-    function clearInput() {
-        // map.centerAndZoom('上海市',12);
-        $("#address").val('');
-        $("#rent").val('');
-        $("#location").val('');
-        $("#area").val('');
-        $("#sellingPrice").val('');
-        $("#province").val('');
-        $("#city").val('');
-        $("#district").val('');
-        $("#town").val('');
 
-    }
+        $('#sub').click(function() {
+                if (overlays.length == 0) {
+                    if ($("#address").val() == '') {
+                        alert("地址信息不能为空！");
+                        return false;
+                    }
+                    if ($("#rent").val() == '') {
+                        alert("出租信息不能为空！");
+                        return false;
+                    }
+                    if ($("#location").val() == '') {
+                        alert("坐标信息不能为空！");
+                        return false;
+                    }
+                    add2DB();
+                } else {
+                    if ($("#address").val()) {
+                        add2DB();
+                    }
+                    // addOverlay2DB();
+                }
+            })
+            /*保存绘制的信息*/
+        function addOverlay2DB(drawingObj) {
+            var postData = {drawingType: "",geoJson: ""};//传给后天的数据
+            for (var i = 0; i < drawingObj.length; i++) {
+                var drawingType = drawingObj[i].drawingMode,
+                    geoJson;
+                if (drawingType == "circle") {
+
+                } else if (drawingType == "marker") {
+                    var pt = drawingObj[i].overlay.point;
+                    geoJson = pt.lng+","+pt.lat;
+                    var fillColor = markerStyleOptions.icon.style.fillColor,
+                    strokeColor = markerStyleOptions.icon.style.strokeColor,
+                    styleOptions1 = {
+                        fillColor:fillColor,
+                        strokeColor:strokeColor
+                    };
+                    postData.styleOptions = JSON.stringify(styleOptions1);//上传数据加入样式
+                } else {
+                    var styleOptions2 = {strokeColor:styleOptions.strokeColor};
+                    postData.styleOptions = JSON.stringify(styleOptions2);
+                    geoJson = JSON.stringify(drawingObj[i].overlay.ia);
+                }
+
+                postData.drawingType = drawingType;
+                postData.geoJson = geoJson;
+
+                $.post("<?php echo AJ_PATH;?>ceshimap/addOverlay2DB.php",postData, function(data) {
+                    if(data == "0"){
+                        alert("添加失败！");
+                    }
+                });
+            }
+
+            drawingObj.length = 0;
+        }
+
+        /*保存地址信息*/
+        function add2DB() {
+            $.post("<?php echo AJ_PATH;?>ceshimap/add2DB.php", {
+                address: $("#address").val(),
+                rent: $("#rent").val(),
+                location: $("#location").val(),
+                province: $("#province").val(),
+                city: $("#city").val(),
+                district: $("#district").val(),
+                town: $("#town").val(),
+                district: $("#district").val(),
+                area: $("#area").val(),
+                sellingPrice: $("#sellingPrice").val(),
+                updateDate: formatDateTime()
+            }, function(data) {
+                alert(data);
+            });
+            clearInput();
+        }
+        /*选择颜色*/
+        $('.BMapLib_marker,.BMapLib_circle,.BMapLib_polyline,.BMapLib_polygon,.BMapLib_rectangle').hover(function() {
+            $('#selectStyle').css('display', 'block');
+        }, function() {
+        });
+        $('body').on('click', '#add-top-bar, #stylized ,#container, .BMapLib_Drawing_panel', function(event) {
+            $('#selectStyle').css('display', 'none');
+        });
+        $('body').on('click', '#selectStyle input', function(event) {
+            var ind = $(this).index();
+            if(!!$(this).val()){
+                var color = $(this).val()||"red";
+                markerStyleOptions.icon.setFillColor(color);
+                markerStyleOptions.icon.setStrokeColor(color);
+                //共用的包括矩形多边形等
+                styleOptions.strokeColor = color;
+            }
+            // $('#selectStyle input:radio').eq(ind-1).attr('checked', true);
+            setTimeout(function(){
+                $('#selectStyle input:radio').eq(ind-1).prop('checked', true);
+            },0);
+            // $(this).prop('checked', true);
+        });
+        function clearInput() {
+            // map.centerAndZoom('上海市',12);
+            $("#address").val('');
+            $("#rent").val('');
+            $("#location").val('');
+            $("#area").val('');
+            $("#sellingPrice").val('');
+            $("#province").val('');
+            $("#city").val('');
+            $("#district").val('');
+            $("#town").val('');
+        }
+    });
+    
     </script>
 </body>
 

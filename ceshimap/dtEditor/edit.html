@@ -104,6 +104,8 @@
     <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.2.1/js/dataTables.buttons.min.js"></script>
     <script type="text/javascript" src="https://cdn.datatables.net/select/1.2.0/js/dataTables.select.min.js"></script>
     <script type="text/javascript" src="http://www.21changfang.com/file/script/editor/dataTables.editor.min.js"></script>
+    <script src="http://www.21changfang.com/file/script/myCommon.js"></script>
+
     <script type="text/javascript">
     var editor;
     $(document).ready(function() {
@@ -172,6 +174,9 @@
             title: "价格",
             data: "sellingPrice",
             editField: "sellingPrice"
+        }, {
+            title: "修改时间",
+            data: "updateDate"
         }];
 
         editor = new $.fn.dataTable.Editor({
@@ -206,6 +211,13 @@
         // Activate an inline edit on click of a table cell
         $('#myTable').on('click', 'tbody td:not(:first-child)', function(e) {
             editor.inline(this);
+        });
+        //编辑时修改时间字段更新
+        editor.on('preSubmit', function(e, json, data) {
+            var time = formatDateTime();
+            for (var rId in json.data) {
+                json.data[rId].updateDate = time;
+            }
         });
         var myTbl = $('#myTable').DataTable({
             ajax: "editDB.php",
