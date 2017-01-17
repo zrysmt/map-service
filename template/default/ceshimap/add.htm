@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 
 <head>
-    <title> - 添加厂房信息 - </title>
+    <title>21厂房网-添加厂房信息</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
     <meta name="description" content="" />
@@ -25,7 +25,7 @@
         padding: 0;
     }
     
-    #add-top-bar {
+    #top-bar {
         position: relative;
         padding-top: 10px;
         height: 40px;
@@ -75,17 +75,15 @@
     
     #stylized .sub {
         float: right;
-        width: 80px;
-        /*margin-left: 10%;*/
+        width: 70px;
+        margin-top: 5px;
+        /*margin-right: 1rem;*/
     }
     
-    #container {
+    #dituContent {
         margin: 0 auto;
-        /*position: absolute;*/
-        margin-top: 2px;
+        /*margin-top: 2px;*/
         width: 100%;
-        height: 700px;
-        border: 1px solid #ebf4fb;
         overflow: hidden;
     }
     
@@ -118,46 +116,35 @@
         /*line-height: 1.5;*/
         margin: -3px 5px 0 5px;
     }
-    
-    #gotoCeshimap {
+    /* menus-bar */
+    #menus-bar{
         float: right;
-        margin-right: 0.6rem;
-        margin-top: -9px;
-        padding: 9px;
+        margin-right: 16px;
+        display: inline-block;
+    }
+    #menus-bar span{
+        margin-left: 0.5rem;
+        margin-top: -9px;   
+        padding: 0.5rem;
     }
     
     #gotoCeshimap a,
-    #editPage a {
+    #editPage a,
+    #back a {
         color: #fff;
         text-decoration: none;
     }
-    
-    #editPage {
-        float: right;
-        margin-right: 1.3rem;
-        margin-top: -9px;
-        padding: 9px;
-    }
-    
-    #editPage:hover,
-    #gotoCeshimap:hover {
+ 
+    #menus-bar span:hover{
         background-color: #00a000;
     }
-    
-    #back {
-        float: right;
-        margin-right: 0.6rem;
+    .menus-bar-click{
+        background-color: #00a000;
     }
-    
-    #back a {
-        color: #fff;
-    }
-    
+
     #toolbar {
         float: right;
-        margin-right: 1.3rem;
-        margin-top: -9px;
-        padding: 9px;
+        margin-right: 15px;
     }
     
     #toolbar img {
@@ -170,19 +157,40 @@
         cursor: pointer;
         background-color: #00a000;
     }
-    #myPosition{
-        position: fixed;
-        top:85%;
-        left: 3%;
+    #rentSetting{
+        display: none;
     }
+    #fullsrceen-show{
+        position: relative;
+    }
+    #small-tool{
+        position: fixed;
+        left: 3%;
+        top: 88%;
+        z-index: 999;
+    }
+    #small-tool img{
+        display: block;
+        background-color: rgba(255,255,255,0.8);
+    }
+    #myPosition{
+        width: 24px;
+        padding: 5px;
+        margin-bottom: 1px;
+    }
+    #screen-ctl{
+        width: 20px;
+        padding: 7px;
+    }
+    #screen-ctl:hover,
     #myPosition:hover{
         cursor: pointer;
     }
     #selectStyle{
         display: none;
         position: absolute;
-        right: 40px;
-        top: 200px;
+        right: 35px;
+        top: 90px;
         padding: 8px;
         background-color: #f5f5f5;
         z-index: 99999;
@@ -195,23 +203,33 @@
         display: none;
     } */
     @media screen and (max-width: 320px){
-        #add-top-bar{
+        
+        #top-bar{
             height: 66px;
         }
+        #stylized{
+            display: none;
+        }
+        /* .province,.city,.district,#pos-label,#location,#rent,#rent-label{
+            display: none;
+        } */
     }
     @media screen and (max-width: 479.9px){
         html{
              font-size: 50% !important;
         }
-        #container {
-            height: 440px;
+        #top-bar{
+            height: 50px;
         }
-        #add-top-bar .logo-word{
+        #top-bar .logo-word{
             display: none;
         }
-        .province,.city,.district{
+        #stylized{
             display: none;
         }
+        /* .province,.city,.district,#pos-label,#location,#rent,#rent-label{
+            display: none;
+        } */
         #rent{
             width: 57px !important;
         }
@@ -220,14 +238,20 @@
         html{
              font-size: 62.5% !important;
         }
-        #container {
-            height: 750px;
+        #menus-bar{
+            font-size: 12px;
         }
-        #add-top-bar .logo-word{
+        #top-bar .logo-word{
             display: none;
         }
-        .province,.city,.district{
+        /* .province,.city,.district,#pos-label,#location,#rent,#rent-label{
             display: none;
+        } */
+        #stylized{
+            display: none;
+        }
+        #top-bar{
+            height: 50px;
         }
         #rent{
             width: 57px !important;
@@ -237,15 +261,21 @@
         html{
              font-size: 125% !important;
         }
-        #container {
-            height: 900px;
+        #menus-bar{
+            font-size: 12px;
         }
-        #add-top-bar .logo-word{
+        #top-bar{
+            height: 40px;
+        }
+        #top-bar .logo-word{
             display: none;
         }
-        .province,.city,.district{
+        #stylized{
             display: inline-block;
         }
+        /* .province,.city,.district,#pos-label,#location,#rent,#rent-label{
+            display: inline-block;
+        } */
         #rent{
             width: 57px !important;
         }
@@ -254,25 +284,23 @@
         html{
              font-size: 150% !important;
         }
-        #container {
-            height: 980px;
+        #menus-bar{
+            font-size: 16px;
         }
-        #add-top-bar .logo-word{
+        #top-bar .logo-word{
             display: inline-block;
         }
-        #stylized .sub {
-            margin-right: 10%;
-        }
+        
     }
     
     @media screen and (min-width: 1024px) {
         html{
              font-size: 187.5% !important;
         }
-        #container {
-            height: 1150px;
+        #menus-bar{
+            font-size: 16px;
         }
-        #add-top-bar .logo-word{
+        #top-bar .logo-word{
             display: inline-block;
         }
         #town {
@@ -283,11 +311,14 @@
 </head>
 
 <body>
-    <div id="add-top-bar">
+    <div id="top-bar">
         <span class="logo-word">&nbsp&nbsp添加厂房信息</span>
-        <span id="back"><a href="<?php echo AJ_PATH;?>">返回首页</a></span>
-        <span id="editPage"><a href="<?php echo AJ_PATH;?>ceshimap/dtEditor/edit.html" target="blank">修改房源</a> </span>
-        <span id="gotoCeshimap"><a href="<?php echo AJ_PATH;?>ceshimap/" target="blank">查看地图</a> </span>
+        <div id="menus-bar">
+            <span id="gotoCeshimap"><a href="<?php echo AJ_PATH;?>ceshimap/" target="_blank">查看地图</a> </span>
+            <span id="addPage" class="menus-bar-click">添加房源</span>
+            <span id="editPage"><a href="<?php echo AJ_PATH;?>ceshimap/dtEditor/edit.html" target="_blank">修改房源</a> </span>
+            <span id="back"><a href="<?php echo AJ_PATH;?>">返回首页</a></span>
+        </div>
         <div id="toolbar">
             <img id="getDis" src="<?php echo AJ_PATH;?>file/image/distance.png" alt="测距离" />
             <img id="getArea" src="<?php echo AJ_PATH;?>file/image/area.png" alt="测面积" />
@@ -297,13 +328,13 @@
         <form id="form" name="form" method="post" action="<?php echo AJ_PATH;?>/ceshimap/add2DB.php">
             <label>地址信息:</label>
             <input type="text" name="address" id="address" placeholder="请输入地址信息..." value="" />
-            <input type="button" value="获取坐标" class="getloc-btn" onclick="searchByStationName();" />
+            <input type="button" value="获取坐标" class="getloc-btn"/>
             <!-- <img src="<?php echo AJ_PATH;?>file/image/postion.png" id="getPos" alt="定位" title="定位在地图上获取坐标信息"> -->
             <img src="<?php echo AJ_PATH;?>file/image/postion.png" id="getPos" alt="定位" title="定位在地图上获取坐标信息">
             <label id="pos-label">坐标:
             </label>
             <input type="text" name="location" id="location" placeholder="输入地址信息,点击获取地址后获取" value="" />
-            <label>出租信息:
+            <label id="rent-label">出租信息:
             </label>
             <!-- <input type="text" name="rent" id="rent" placeholder="请输入出租信息..." value="" /> -->
             <select name="rent" id="rent" class="input-small">
@@ -330,27 +361,76 @@
         </form>
     </div>
     <div id="rentSettingDiv"></div>
-    <div id="container"> </div>
-    <img id="myPosition" src="<?php echo AJ_PATH;?>file/image/myPosition.png" alt="我的位置" />
-    <!-- 选择样式-->  
-    <div id="selectStyle">
-        <p>选择颜色</p>
-        <input type="radio" value="red" name="selectStyle"  >红色
-        <input type="radio" value="yellow" name="selectStyle">黄色
-        <input type="radio" value="blue" name="selectStyle">蓝色
-        <input type="radio" value="green" name="selectStyle">绿色
-        <input type="radio" value="black" name="selectStyle">黑色
+    <div id="fullsrceen-show">  
+        <div id="dituContent"> </div>
+        <div id="small-tool">
+            <img id="myPosition" src="<?php echo AJ_PATH;?>file/image/myPosition.png" alt="位置" />
+            <img id="screen-ctl" class="fullscreen" src="<?php echo AJ_PATH;?>file/image/fullscreen.png" alt="全屏" />
+        </div>
+     选择样式  
+        <div id="selectStyle">
+            <p>选择颜色</p>
+            <input type="radio" value="red" name="selectStyle">红色
+            <input type="radio" value="yellow" name="selectStyle">黄色
+            <input type="radio" value="blue" name="selectStyle">蓝色
+            <input type="radio" value="pink" name="selectStyle">粉红色
+            <input type="radio" value="purple" name="selectStyle">紫色
+            <input type="radio" value="white" name="selectStyle">白色
+        </div>
     </div>
-
     <script src="http://libs.baidu.com/jquery/1.9.0/jquery.min.js"></script>
     <script src="http://api.map.baidu.com/api?v=2.0&ak=TPrSyQXhBwEjWzfXzPw3iPXxqISq2idO"></script>
     <script src="http://api.map.baidu.com/library/MarkerTool/1.2/src/MarkerTool.js"></script>
     <script type="text/javascript" src="http://api.map.baidu.com/library/DistanceTool/1.2/src/DistanceTool_min.js"></script>
     <script type="text/javascript" src="http://api.map.baidu.com/library/GeoUtils/1.2/src/GeoUtils_min.js"></script>
     <script type="text/javascript" src="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.js"></script>
+    <!-- 点聚合 -->
+    <script type="text/javascript" src="http://api.map.baidu.com/library/TextIconOverlay/1.2/src/TextIconOverlay_min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/library/MarkerClusterer/1.2/src/MarkerClusterer_min.js"></script>
+
     <script src="<?php echo AJ_STATIC;?>file/script/myCommon.js"></script>
+    <script>
+    /*高度自适应*/
+    var dituContent = document.getElementById("dituContent"),
+    totalHeight = document.documentElement.clientHeight,
+    stylizedHight = document.getElementById("stylized")&&window.getComputedStyle(document.getElementById("stylized"),null).getPropertyValue("display")!=="none"?document.getElementById("stylized").clientHeight:0,
+    topBarHeight = document.getElementById("top-bar").clientHeight;
+    dituContent.style.height = totalHeight - stylizedHight - topBarHeight -5 +"px";
+    console.log(totalHeight,stylizedHight,topBarHeight,totalHeight - stylizedHight - topBarHeight -15 +"px",dituContent.style.height);
+    window.onresize = debounce(function(){
+        doResize();
+    },500,false);
+    function doResize(){
+        var totalHeight = document.documentElement.clientHeight,
+        stylizedHight = document.getElementById("stylized")?document.getElementById("stylized").clientHeight:0,
+
+        topBarHeight = document.getElementById("top-bar").clientHeight;
+        dituContent.style.height = totalHeight - stylizedHight - topBarHeight -5 +"px";
+
+        console.log(totalHeight,stylizedHight,topBarHeight,totalHeight - stylizedHight - topBarHeight -15 +"px",dituContent.style.height);
+
+    }
+    function debounce(func,threshold,execAsap,fun){
+        var timeout;
+        return function debounced(){
+            var obj = this,args = arguments;
+            function delayed(){
+                if(!execAsap) func.apply(obj,args);
+                timeout = null;
+            }
+            if(timeout) {
+                clearTimeout(timeout);
+            }else if(execAsap){
+                func.apply(obj,args);
+            }
+            timeout = setTimeout(delayed,threshold||200);
+            if(fun) fun();
+        }
+    }
+    </script>
     <script type="text/javascript">
     $(function(){
+        /*全局变量*/
         var styleOptions = {
                 strokeColor: "red", //边线颜色。
                 fillColor: "red", //填充颜色。当参数为空时，圆形将没有填充效果。
@@ -367,61 +447,114 @@
                     fillOpacity: 1 //填充透明度
                 })
             },
-        baseNum=1000000,
-        map = new BMap.Map("container");
-        map.centerAndZoom("上海", 12);
-        map.setMapType(BMAP_HYBRID_MAP);
-        // map.enableContinuousZoom(); //启用地图惯性拖拽，默认禁用
-        map.enableScrollWheelZoom(); //启用滚轮放大缩小，默认禁用
-        map.enableKeyboard();
+        baseNum=1000000,//opacity*baseNum就是id信息
+        overlays = [],
+        drawingObj = [],
+        map;
+       
+        
+        //初始化
+        (function initMap(){
+            map = new BMap.Map("dituContent");
+            map.centerAndZoom("上海", 12);
+            map.setMapType(BMAP_HYBRID_MAP);
+            map.enableInertialDragging(); //启用地图惯性拖拽，默认禁用
+            map.enableContinuousZoom(); //启用连续缩放效果，默认禁用
+            map.enableScrollWheelZoom(); //启用滚轮放大缩小，默认禁用
+            map.enableKeyboard();
+    
+            // map.addControl(new BMap.NavigationControl()); //添加默认缩放平移控件
+            // map.addControl(new BMap.OverviewMapControl({
+            //     isOpen: true,
+            //     anchor: BMAP_ANCHOR_BOTTOM_RIGHT
+            // })); //右下角，打开
+            var ctrl_ove = new BMap.OverviewMapControl({
+                anchor: BMAP_ANCHOR_BOTTOM_RIGHT,
+                isOpen: 1
+            });
+            map.addControl(ctrl_ove);
+            //向地图中添加比例尺控件
+            var ctrl_sca = new BMap.ScaleControl({
+                anchor: BMAP_ANCHOR_BOTTOM_LEFT
+            });
+            map.addControl(ctrl_sca);
+            // 向地图中添加地图切换控件
+            var ctrl_type = new BMap.MapTypeControl({
+                anchor: BMAP_ANCHOR_TOP_RIGHT
+            });
+            map.addControl(ctrl_type);
+            var stCtrl = new BMap.PanoramaControl(); //构造全景控件
+            stCtrl.setOffset(new BMap.Size(20, 90));
+            map.addControl(stCtrl); //添加全景控件
 
-        map.addControl(new BMap.NavigationControl()); //添加默认缩放平移控件
-        // map.addControl(new BMap.OverviewMapControl({
-        //     isOpen: true,
-        //     anchor: BMAP_ANCHOR_BOTTOM_RIGHT
-        // })); //右下角，打开
-        var ctrl_ove = new BMap.OverviewMapControl({
-            anchor: BMAP_ANCHOR_BOTTOM_RIGHT,
-            isOpen: 1
-        });
-
-        map.addControl(ctrl_ove);
-        //向地图中添加比例尺控件
-        var ctrl_sca = new BMap.ScaleControl({
-            anchor: BMAP_ANCHOR_BOTTOM_LEFT
-        });
-        map.addControl(ctrl_sca);
-        // 向地图中添加地图切换控件
-        var ctrl_type = new BMap.MapTypeControl({
-            anchor: BMAP_ANCHOR_TOP_RIGHT
-        });
-        map.addControl(ctrl_type);
-
-        toolbarEvent(map);//工具条
-        var overlays = [],
-            drawingObj = [];
-
-        drawingManager(map);//绘制管理
-
-        setTimeout(function(){
-            loadAllOverlays(map); //加载绘制的图形
-            loadAllMarkers(map);
-        },100);
-        getMyPosition(map);
-        /*加载所有的标记*/
+            toolbarEvent(map);//工具条
+            drawingManager(map);//绘制管理
+    
+            setTimeout(function(){
+                loadAllOverlays(map); //加载绘制的图形
+                loadAllMarkers(map);
+            },100);
+            getMyPosition(map);
+            fullScreenCtl();//全屏
+        })();//
+        /*全屏*/
+        function fullScreenCtl(){
+            $('body').on('click', '#screen-ctl', function(event) {
+                if($(this).hasClass('fullscreen')){//全屏
+                    $(this).removeClass('fullscreen');
+                    $(this).addClass('smallscreen');
+                    launchFullScreen(document.documentElement);
+                    $('#top-bar').css('display', 'none');
+                    if(parseFloat($("#dituContent").css('width')) < 500){
+                        $('.BMapLib_Drawing').css('display', 'none');
+                    }
+                    $(this).attr('src', '<?php echo AJ_PATH;?>file/image/smallscreen.png');
+                }else if($(this).hasClass('smallscreen')){
+                    $(this).removeClass('smallscreen');
+                    $(this).addClass('fullscreen');
+                    if(document.cancelFullScreen) {  
+                        document.cancelFullScreen();  
+                    } else if(document.mozCancelFullScreen) {  
+                      document.mozCancelFullScreen();  
+                    } else if(document.webkitCancelFullScreen) {  
+                      document.webkitCancelFullScreen();  
+                    }  
+                    $('#top-bar').css('display', 'block');
+                    $('.BMapLib_Drawing').css('display', 'block');
+                    $(this).attr('src', '<?php echo AJ_PATH;?>file/image/fullscreen.png');
+                }
+            });
+        }
+        function launchFullScreen(element) {  
+            if(element.requestFullscreen) {  
+              element.requestFullscreen();  
+            } else if(element.mozRequestFullScreen) {  
+              element.mozRequestFullScreen();  
+            } else if(element.webkitRequestFullscreen) {  
+              element.webkitRequestFullscreen();  
+            } else if(element.msRequestFullscreen) {  
+              element.msRequestFullscreen();  
+            }  
+        } 
+        /*加载所有的标记--旧的，带有信息的*/
         function loadAllMarkers(map){
+            var markers = [];
             {loop $markers $k $v}
                 var location = '{$v['location']}',
                 p0 = location.split(',')[0],
                 p1 = location.split(',')[1],
                 point = new BMap.Point(p0,p1);
                 var marker = new BMap.Marker(point);
-                map.addOverlay(marker);
-
+                // map.addOverlay(marker);//不用这个，使用点聚合
+                markers.push(marker);
             {/loop}
+            //最简单的用法，生成一个marker数组，然后调用markerClusterer类即可。
+            var markerClusterer = new BMapLib.MarkerClusterer(map, {markers:markers,girdSize:500,maxZoom:16,isAverangeCenter:true});
+            
         }
         /*加载所有的多边形*/
         function loadAllOverlays(map){
+            var simpleMarkers=[]
             {loop $overlays $k $v}
                 var drawingType = "{$v['drawingType']}";
                 switch(drawingType){
@@ -446,7 +579,8 @@
                         
                             }
                             var marker1 = new BMap.Marker(pot,newMarkerStyleOptions||markerStyleOptions);
-                            map.addOverlay(marker1);
+                            // map.addOverlay(marker1);
+                            simpleMarkers.push(marker1);
                         }
                         
                         break;
@@ -468,6 +602,7 @@
                         break;
                 }
             {/loop}
+            var markerClusterer = new BMapLib.MarkerClusterer(map, {markers:simpleMarkers,girdSize:500,maxZoom:16,isAverangeCenter:true});
         }
         /*Drawing*/
         function drawingManager(map) {
@@ -508,12 +643,12 @@
             myDrawingManagerObject.addEventListener('overlaycomplete', overlaycomplete);
 
             var nodeName = "",pathTarget="",pathId="",className="",newPoint={},newPointStr="";
-            $('body').on('click keydown',/*"#container",*/ function(event) {
+            $('body').on('click keydown',/*"#dituContent",*/ function(event) {
                 // event.preventDefault();
                 var keyCode = "",
                     event = event || window.event;
                 keyCode = event.keyCode;
-                if(event.type=="click"&&(event.toElement.id ==="stylized"||event.toElement.id ==="add-top-bar")) return;
+                /*if(event.type=="click"&&(event.toElement.id ==="stylized"||event.toElement.id ==="top-bar")) return;*/
                 console.log(event);
                 //撤销ctrl + Z
                 if (event.ctrlKey == true && keyCode == "90") {
@@ -605,16 +740,9 @@
                 closeOthers('getDis');
                 distanceTool = new BMapLib.DistanceTool(map);
                 distanceTool.open();
-                /*distanceTool.addEventListener("drawend",function(e){
-                    console.log(e);
-                    console.log(e.distance);
-                });*/
             });
             getArea.addEventListener('click', function() {
                 closeOthers('getArea');
-                /*area = new BMapLib.GeoUtils.getPolygonArea();
-                alert("共" + area.toFixed(2) + "平方米");
-                self.map.addOverlay(ply);*/
                 myDrawingManagerObject = new BMapLib.DrawingManager(map, {
                     isOpen: true,
                     drawingType: BMAP_DRAWING_MARKER,
@@ -643,12 +771,13 @@
                 }
             }
         }
-
+        /*搜索*/
         function searchByStationName() {
             var localSearch = new BMap.LocalSearch(map);
             localSearch.enableAutoViewport(); //允许自动调节窗体大小
             // map.clearOverlays(); //清空原来的标注
             var keyword = document.getElementById("address").value;
+            if(!keyword) return;
             localSearch.setSearchCompleteCallback(function(searchResult) {
                 var poi = searchResult.getPoi(0);
                 document.getElementById("location").value = poi.point.lng + "," + poi.point.lat;
@@ -695,6 +824,17 @@
             });
 
         }
+        /*定位*/
+        /*定位button，回车*/
+        $('body').on('click', '.getloc-btn', function(event) {
+            searchByStationName();
+        });
+        $('body').on('keypress', '#address', function(event) {
+            if(event.keyCode == "13"){   
+                searchByStationName();
+            }
+        });
+        /*定位img按钮*/
         $('#getPos').click(function(event) {
             // map.clearOverlays();
             document.getElementById("location").value = '';
@@ -741,7 +881,6 @@
                     if ($("#address").val()) {
                         add2DB();
                     }
-                    // addOverlay2DB();
                 }
             })
             /*保存绘制的信息*/
@@ -805,7 +944,7 @@
             $('#selectStyle').css('display', 'block');
         }, function() {
         });
-        $('body').on('click', '#add-top-bar, #stylized ,#container, .BMapLib_Drawing_panel', function(event) {
+        $('body').on('click', '#top-bar, #stylized ,#dituContent, .BMapLib_Drawing_panel', function(event) {
             $('#selectStyle').css('display', 'none');
         });
         $('body').on('click', '#selectStyle input', function(event) {
