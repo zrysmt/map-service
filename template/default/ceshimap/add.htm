@@ -80,7 +80,7 @@
         /*margin-right: 1rem;*/
     }
     
-    #dituContent {
+    .dituContent {
         margin: 0 auto;
         /*margin-top: 2px;*/
         width: 100%;
@@ -194,6 +194,25 @@
         padding: 8px;
         background-color: #f5f5f5;
         z-index: 99999;
+    }
+    #map-pane{
+        display: none;
+        position: absolute;
+        background-color: rgba(60,60,60,0.8);
+        padding: 5px 15px;
+    }
+    #map-pane span{
+        display: block;
+        padding-bottom: 5px;
+    }
+    #map-pane span:hover{
+        cursor: pointer;
+        color: #00ff00;
+    }
+    .selected-map:before{
+        content: "√";
+        position: absolute;
+        left: 5px;
     }
     /* 绘制 */
     /* .BMapLib_Drawing .BMapLib_circle_hover {
@@ -320,8 +339,13 @@
             <span id="back"><a href="<?php echo AJ_PATH;?>">返回首页</a></span>
         </div>
         <div id="toolbar">
-            <img id="getDis" src="<?php echo AJ_PATH;?>file/image/distance.png" alt="测距离" />
-            <img id="getArea" src="<?php echo AJ_PATH;?>file/image/area.png" alt="测面积" />
+            <img id="change-map" title="切换地图" src="<?php echo AJ_PATH;?>file/image/changemap.png" alt="切换地图" />
+            <div id="map-pane">
+                <span class="baidumap selected-map">&nbsp;百度地图</span>
+                <span class="gaodemap">&nbsp;高德地图</span>
+            </div>
+            <img id="getDis" title="测距离" src="<?php echo AJ_PATH;?>file/image/distance.png" alt="测距离" />
+            <img id="getArea" title="测面积" src="<?php echo AJ_PATH;?>file/image/area.png" alt="测面积" />
         </div>
     </div>
     <div id="stylized" class="myform stylized">
@@ -343,7 +367,7 @@
                 {/loop}
             </select>
             <img src="<?php echo AJ_PATH;?>file/image/seting.png" id="rentSetting" alt="设置" title="修改,添加出租信息">
-            <div class="spacer"></div>
+            <!-- <div class="spacer"></div>
             <label class="province">省份:</label>
             <input type="text" id="province" class="input-small province" />
             <label class="city">&nbsp&nbsp城市:</label>
@@ -356,18 +380,18 @@
             <label>&nbsp&nbsp厂房面积:</label>
             <input type="text" id="area" class="input-small" />
             <label>&nbsp&nbsp售价:</label>
-            <input type="text" id="sellingPrice" class="input-small" />
+            <input type="text" id="sellingPrice" class="input-small" /> -->
             <input class="sub" id="sub" type="button" value="提交" />
         </form>
     </div>
     <div id="rentSettingDiv"></div>
     <div id="fullsrceen-show">  
-        <div id="dituContent"> </div>
+        <div id="dituContent" class="dituContent"> </div>
+        <div id="gaodeContent" class="dituContent" style="display:none"> </div>
         <div id="small-tool">
             <img id="myPosition" src="<?php echo AJ_PATH;?>file/image/myPosition.png" alt="位置" />
             <img id="screen-ctl" class="fullscreen" src="<?php echo AJ_PATH;?>file/image/fullscreen.png" alt="全屏" />
         </div>
-     选择样式  
         <div id="selectStyle">
             <p>选择颜色</p>
             <input type="radio" value="red" name="selectStyle">红色
@@ -391,12 +415,14 @@
     <script src="<?php echo AJ_STATIC;?>file/script/myCommon.js"></script>
     <script>
     /*高度自适应*/
-    var dituContent = document.getElementById("dituContent"),
+    var dituContent = document.getElementsByClassName("dituContent"),
     totalHeight = document.documentElement.clientHeight,
     stylizedHight = document.getElementById("stylized")&&window.getComputedStyle(document.getElementById("stylized"),null).getPropertyValue("display")!=="none"?document.getElementById("stylized").clientHeight:0,
     topBarHeight = document.getElementById("top-bar").clientHeight;
-    dituContent.style.height = totalHeight - stylizedHight - topBarHeight -5 +"px";
-    console.log(totalHeight,stylizedHight,topBarHeight,totalHeight - stylizedHight - topBarHeight -15 +"px",dituContent.style.height);
+    for (var i = 0; i < dituContent.length; i++) {
+        dituContent[i].style.height = totalHeight - stylizedHight - topBarHeight -5 +"px";
+    }
+    console.log(dituContent);
     window.onresize = debounce(function(){
         doResize();
     },500,false);
@@ -405,7 +431,9 @@
         stylizedHight = document.getElementById("stylized")?document.getElementById("stylized").clientHeight:0,
 
         topBarHeight = document.getElementById("top-bar").clientHeight;
-        dituContent.style.height = totalHeight - stylizedHight - topBarHeight -5 +"px";
+        for (var i = 0; i < dituContent.length; i++) {
+            dituContent[i].style.height = totalHeight - stylizedHight - topBarHeight -5 +"px";
+        }
 
         console.log(totalHeight,stylizedHight,topBarHeight,totalHeight - stylizedHight - topBarHeight -15 +"px",dituContent.style.height);
 
@@ -429,6 +457,7 @@
     }
     </script>
     <script type="text/javascript">
+    var tmap;//调试用
     $(function(){
         /*全局变量*/
         var styleOptions = {
@@ -447,14 +476,168 @@
                     fillOpacity: 1 //填充透明度
                 })
             },
+            markerOpt = {
+                icon: new BMap.Symbol(BMap_Symbol_SHAPE_BACKWARD_CLOSED_ARROW, {
+                    scale: 1.2,
+                    strokeWeight: 1,
+                    rotation: 180,
+                    fillColor: 'blue',
+                    fillOpacity: 0.8
+                })
+            },
         baseNum=1000000,//opacity*baseNum就是id信息
         overlays = [],
         drawingObj = [],
         map;
-       
+        //切换地图模块
+        function outOfChina(lat, lng) {
+            if ((lng < 72.004) || (lng > 137.8347)) {
+                return true;
+            }
+            if ((lat < 0.8293) || (lat > 55.8271)) {
+                return true;
+            }
+            return false;
+        }
+        var changeMap = {
+            init:function(map){
+                var self = this;
+                $('#change-map').on('click', function(event) {
+                    if($('#map-pane').css('display')!="none"){
+                        $('#map-pane').css('display', 'none');
+                    }else{
+                        $("#map-pane").css('display', 'block');
+                    }
+                    return;        
+                });
+                $('#map-pane span').on('click', function(event) {
+                    $("#map-pane").css('display', 'none');
+                    if($(this).hasClass('selected-map')){
+                       return;
+                    }else{
+                       $("#map-pane span").removeClass('selected-map');
+                       $(this).addClass('selected-map');
+                       //切换地图
+                       console.log("切换地图");
+                       if($(this).hasClass('gaodemap')){
+                           var bMapInfo = self.getMapInfo("bMap",map);
+                           var gcjPos = self.bd2gcj(bMapInfo.center.lat,bMapInfo.center.lng);
+                           $('#dituContent').css('display', 'none');
+                           $('#gaodeContent').css('display', 'block');
+                           self.appendAMap(bMapInfo,gcjPos);
+                       }else{//百度地图
+                           $('#dituContent').css('display', 'block');
+                           $('#gaodeContent').css('display', 'none');
+                           var aMapInfo = self.getMapInfo("aMap",self.aMap);
+                           var bdPos = self.gcj2bd(aMapInfo.center.lat,aMapInfo.center.lng);
+                           var pt = new BMap.Point(bdPos.lng,bdPos.lat);
+                           if($('#dituContent').css('display')=="block"){
+                                setTimeout(function(){
+                                  map.centerAndZoom(pt,aMapInfo.zoom);
+                                },100);
+                           }
+                           
+                       }
+                    } 
+                    return;    
+                });
+            },
+            appendAMap:function(mapInfo,gcjPos){
+                var self = this;
+
+                var initAMap= function(){
+                    var aMap = new AMap.Map('gaodeContent',{
+                        resizeEnable: true,
+                        zoom: mapInfo.zoom,
+                        center: [gcjPos.lng, gcjPos.lat]
+                    });
+                    self.aMap = aMap;
+                    aMap.plugin(["AMap.MapType"],function(){
+                    //地图类型切换
+                        var type;
+                        switch(mapInfo.mapType.trim()){
+                            case "混合":
+                                type= new AMap.MapType({
+                                    defaultType:1, //使用3D地图
+                                    showRoad:true
+                                });
+                                break;
+                            case "卫星":
+                                type= new AMap.MapType({
+                                    defaultType:1
+                                });
+                                break;
+                            case "地图":
+                                type= new AMap.MapType({
+                                    defaultType:0,
+                                    showRoad:true
+                                });
+                                break;
+                        }
+                        if(!type){
+                            type= new AMap.MapType({
+                                defaultType:1, 
+                                showRoad:true
+                            });
+                        } 
+                        aMap.addControl(type);
+                    });
+                    
+                }
+                var head = document.getElementsByTagName('head')[0];
+                var script = document.createElement('script');
+                script.type = "text/javascript";
+                script.src = "http://webapi.amap.com/maps?v=1.3&key=886fdc3252fdaf50f0e9bd902965aa01"
+                script.onreadystatechange = function(){
+                    if(this.readyState == "compelete") initAMap();
+                }
+                script.onload = function(){
+                    initAMap();
+                }
+                head.appendChild(script);
+            },
+            getMapInfo:function(mapName,map){
+               if(mapName=="bMap"){
+                   return {
+                       zoom:map.getZoom(),
+                       mapType:map.getMapType().getName(),
+                       center:map.getCenter()
+                    } 
+               }else if(mapName=="aMap"){
+                    return {
+                       zoom:map.getZoom(),
+                       // mapType:map.getMapType().getName(),
+                       center:map.getCenter()
+                    } 
+               }
+               
+            },
+            bd2gcj:function(bdLat,bdLng){
+                if (outOfChina(bdLat, bdLng)) {
+                    return {"lat": bdLat, "lng": bdLng};
+                }
+                var x = bdLng - 0.0065, y = bdLat - 0.006;
+                var z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * Math.PI);
+                var theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * Math.PI);
+                var gcjLng = z * Math.cos(theta);
+                var gcjLat = z * Math.sin(theta);
+                return {"lat": gcjLat, "lng": gcjLng};
+            },
+            gcj2bd:function(gcjLat, gcjLng){
+                if (outOfChina(gcjLat, gcjLng)) {
+                    return {"lat": gcjLat, "lng": gcjLng};
+                }
+                var x = gcjLng, y = gcjLat;
+                var z = Math.sqrt(x * x + y * y) + 0.00002 * Math.sin(y * Math.PI);
+                var theta = Math.atan2(y, x) + 0.000003 * Math.cos(x * Math.PI);
+                var bdLng = z * Math.cos(theta) + 0.0065;
+                var bdLat = z * Math.sin(theta) + 0.006;
+                return {"lat": bdLat, "lng": bdLng};
+            }
+        };
         
         //初始化
-        (function initMap(){
+        function initMap(){
             map = new BMap.Map("dituContent");
             map.centerAndZoom("上海", 12);
             map.setMapType(BMAP_HYBRID_MAP);
@@ -494,9 +677,12 @@
                 loadAllOverlays(map); //加载绘制的图形
                 loadAllMarkers(map);
             },100);
-            getMyPosition(map);
+            getMyPosition(map);//获取当前位置定位
             fullScreenCtl();//全屏
-        })();//
+            changeMap.init(map);//切换地图模块
+            tmap = map;//调试用
+        };//
+        initMap();
         /*全屏*/
         function fullScreenCtl(){
             $('body').on('click', '#screen-ctl', function(event) {
@@ -504,9 +690,9 @@
                     $(this).removeClass('fullscreen');
                     $(this).addClass('smallscreen');
                     launchFullScreen(document.documentElement);
-                    $('#top-bar').css('display', 'none');
-                    if(parseFloat($("#dituContent").css('width')) < 500){
+                    if(parseFloat($(".dituContent").css('width')) < 500||parseFloat($(".dituContent").css('height'))<541){
                         $('.BMapLib_Drawing').css('display', 'none');
+                        $('#top-bar').css('display', 'none');
                     }
                     $(this).attr('src', '<?php echo AJ_PATH;?>file/image/smallscreen.png');
                 }else if($(this).hasClass('smallscreen')){
@@ -536,20 +722,37 @@
               element.msRequestFullscreen();  
             }  
         } 
+        /**
+         * 限制点聚合的样式
+         * @param  {[String]} dom     [监控改dom的宽度]
+         * @param  {[Number]} width   [小于改宽度被视为手机端]
+         * @param  {[Array]} markers [点集合数组]
+         * @return {[MarkerClusterer]}         [MarkerClusterer]
+         */
+        function clusterStyle(dom,width,markers){
+            var width = width||500,dom = dom||"dituContent",containWidth = parseFloat($("."+dom).css('width'));
+            if( containWidth < width){
+                return new BMapLib.MarkerClusterer(map, {markers:markers,girdSize:500,maxZoom:16,isAverangeCenter:true});
+            }else if(containWidth < 850){
+                return new BMapLib.MarkerClusterer(map, {markers:markers,girdSize:500,maxZoom:14,isAverangeCenter:true});
+            }else{
+                return new BMapLib.MarkerClusterer(map, {markers:markers,girdSize:500,maxZoom:11,isAverangeCenter:true});
+            }
+        }
         /*加载所有的标记--旧的，带有信息的*/
         function loadAllMarkers(map){
             var markers = [];
             {loop $markers $k $v}
                 var location = '{$v['location']}',
                 p0 = location.split(',')[0],
-                p1 = location.split(',')[1],
-                point = new BMap.Point(p0,p1);
+                p1 = location.split(',')[1];
+                if(p0&&p1) point = new BMap.Point(p0,p1);
                 var marker = new BMap.Marker(point);
                 // map.addOverlay(marker);//不用这个，使用点聚合
                 markers.push(marker);
             {/loop}
             //最简单的用法，生成一个marker数组，然后调用markerClusterer类即可。
-            var markerClusterer = new BMapLib.MarkerClusterer(map, {markers:markers,girdSize:500,maxZoom:16,isAverangeCenter:true});
+            var markerClusterer = clusterStyle("dituContent",500,markers);
             
         }
         /*加载所有的多边形*/
@@ -562,8 +765,8 @@
                         if(!!'{$v['geoJson']}'){
                             var location = '{$v['geoJson']}',
                             p0 = parseFloat(location.split(',')[0]),
-                            p1 = parseFloat(location.split(',')[1]),
-                            pot = new BMap.Point(p0,p1);
+                            p1 = parseFloat(location.split(',')[1]);
+                            if(p0&&p1) pot = new BMap.Point(p0,p1);
                             if(!!'{$v['styleOptions']}'){
                                 var newMarkerStyleOptions = {
                                      icon:new BMap.Symbol(BMap_Symbol_SHAPE_POINT, {
@@ -602,7 +805,7 @@
                         break;
                 }
             {/loop}
-            var markerClusterer = new BMapLib.MarkerClusterer(map, {markers:simpleMarkers,girdSize:500,maxZoom:16,isAverangeCenter:true});
+            var markerClusterer = clusterStyle("dituContent",500,simpleMarkers);
         }
         /*Drawing*/
         function drawingManager(map) {
@@ -620,7 +823,7 @@
             var myDrawingManagerObject = new BMapLib.DrawingManager(map, {
                 isOpen: false, //是否开启绘制模式
                 enableDrawingTool: true,
-                enableCalculate: false,
+                enableCalculate: true,
                 drawingToolOptions: {
                     anchor: BMAP_ANCHOR_TOP_RIGHT,
                     offset: new BMap.Size(5, 35),
@@ -643,13 +846,14 @@
             myDrawingManagerObject.addEventListener('overlaycomplete', overlaycomplete);
 
             var nodeName = "",pathTarget="",pathId="",className="",newPoint={},newPointStr="";
-            $('body').on('click keydown',/*"#dituContent",*/ function(event) {
+            $('body').on('click keydown',/*".dituContent",*/ function(event) {
                 // event.preventDefault();
                 var keyCode = "",
                     event = event || window.event;
                 keyCode = event.keyCode;
                 /*if(event.type=="click"&&(event.toElement.id ==="stylized"||event.toElement.id ==="top-bar")) return;*/
-                console.log(event);
+                // console.log(event);
+
                 //撤销ctrl + Z
                 if (event.ctrlKey == true && keyCode == "90") {
                     if (drawingManager) {
@@ -712,24 +916,24 @@
                 }
             });
         }
-        /*获得我的位置*/
+        /*获得我的位置：正确的应该是：121.428205,31.032651*/
         function getMyPosition(map){
           var myPosition = document.getElementById('myPosition');
                 myPosition.addEventListener('click', function(event) {
                     var geolocation = new BMap.Geolocation();
                     geolocation.getCurrentPosition(function(r){
                         if(this.getStatus() == BMAP_STATUS_SUCCESS){
-                            var mk = new BMap.Marker(r.point);
+                            var mk = new BMap.Marker(r.point,markerOpt);
                             map.addOverlay(mk);
                             // map.panTo(r.point);
                             map.centerAndZoom(r.point,15);
-                            // alert('您的位置：'+r.point.lng+','+r.point.lat);
                         }
                         else {
                             alert('定位失败，请重新定位'+this.getStatus());
                         }        
                     },{enableHighAccuracy: true})
-                });          
+                });   
+            myPosition = null;//清除闭包       
         }
         /*测量距离  测量面积*/
         function toolbarEvent(map) {
@@ -944,8 +1148,9 @@
             $('#selectStyle').css('display', 'block');
         }, function() {
         });
-        $('body').on('click', '#top-bar, #stylized ,#dituContent, .BMapLib_Drawing_panel', function(event) {
-            $('#selectStyle').css('display', 'none');
+        $('body').on('click', '#top-bar, #stylized ,.dituContent, .BMapLib_Drawing_panel', function(event) {
+            if($('#selectStyle').css('display')!="none")
+                $('#selectStyle').css('display', 'none');
         });
         $('body').on('click', '#selectStyle input', function(event) {
             var ind = $(this).index();
@@ -974,6 +1179,7 @@
             $("#district").val('');
             $("#town").val('');
         }
+
     });
     
     </script>
