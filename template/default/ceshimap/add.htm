@@ -407,7 +407,7 @@
             </div>
             <div id="select-shape">
                 <p>选择点形状</p>
-                <input type="radio" value="BMap_Symbol_SHAPE_CIRCLE" name="select-shape">定位点
+                <input type="radio" value="BMap_Symbol_SHAPE_POINT" name="select-shape">定位点
                 <input type="radio" value="BMap_Symbol_SHAPE_RECTANGLE" name="select-shape">矩形
                 <input type="radio" value="BMap_Symbol_SHAPE_RHOMBUS" name="select-shape">菱形
                 <input type="radio" value="BMap_Symbol_SHAPE_STAR" name="select-shape">五角星
@@ -419,9 +419,11 @@
     <script src="http://libs.baidu.com/jquery/1.9.0/jquery.min.js"></script>
     <script src="http://api.map.baidu.com/api?v=2.0&ak=TPrSyQXhBwEjWzfXzPw3iPXxqISq2idO"></script>
     <script src="http://api.map.baidu.com/library/MarkerTool/1.2/src/MarkerTool.js"></script>
-    <script type="text/javascript" src="http://api.map.baidu.com/library/DistanceTool/1.2/src/DistanceTool_min.js"></script>
     <script type="text/javascript" src="http://api.map.baidu.com/library/GeoUtils/1.2/src/GeoUtils_min.js"></script>
-    <script type="text/javascript" src="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/library/DistanceTool/1.2/src/DistanceTool_min.js"></script>
+    <!-- <script type="text/javascript" src="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.js"></script> -->
+    <!-- 使用更改过源码的 -->
+    <script type="text/javascript" src="http://www.21changfang.com/file/script/DrawingManager.js"></script>
     <!-- 点聚合 -->
     <script type="text/javascript" src="http://api.map.baidu.com/library/TextIconOverlay/1.2/src/TextIconOverlay_min.js"></script>
     <script type="text/javascript" src="http://api.map.baidu.com/library/MarkerClusterer/1.2/src/MarkerClusterer_min.js"></script>
@@ -502,7 +504,7 @@
         baseNum=1000000,//opacity*baseNum就是id信息
         overlays = [], drawingObj = [], map;
         selectSet.radioInd1 = 0,selectSet.radioInd2 = 0,selectSet.radioColor = "red",//默认颜色
-            selectSet.symbolType = "BMap_Symbol_SHAPE_POINT",selectSet.symbolScale = "1.2",
+            selectSet.symbolType = "BMap_Symbol_SHAPE_POINT",selectSet.symbolScale = "1.2",selectSet.shape1 = 0,//定位点第二次点击以后
             selectSet.starPath = "M1.281866564586093,10.091353266867403 L9.81234759469662,10.091353266867403 L12.448331873830627,1.9874338336331738 L15.084317651818987,10.091353266867403 L23.614797183075044,10.091353266867403 L16.71350568986501,15.099793585352003 L19.349626364749437,23.203713018586193 L12.448331873830627,18.195136304382387 L5.54703888176594,23.203713018586193 L8.1831603060779,15.099793585352003 L1.281866564586093,10.091353266867403 z",
             selectSet.rectPath = "M1,1 L1,20 L20,20 L20 1 z ";
         //切换地图模块
@@ -774,16 +776,22 @@
         /*根据形状类型改变markerStyle*/
         function changeMarkerStyleByShape(shape,markerStyle){
             if(shape=="BMap_Symbol_SHAPE_STAR"){
-                // selectSet.symbolScale = 16;
-                // markerStyleOptions.icon.setScale(16);
+                selectSet.symbolScale = 1;
+                markerStyleOptions.icon.setScale(1);
                 markerStyle.icon.setPath(selectSet.starPath);//path 是 25左右*25左右，每个path的width和height不要相同，后面会根据这两个值判断绘制的类型
                 markerStyle.icon.setAnchor(new BMap.Size(12.5,12.5));
             }else if(shape == "BMap_Symbol_SHAPE_RECTANGLE"){
+                selectSet.symbolScale = 1;
+                markerStyleOptions.icon.setScale(1);
                 markerStyle.icon.setPath(selectSet.rectPath);
                 markerStyle.icon.setAnchor(new BMap.Size(12.5,12.5));
             }else{
-                // markerStyle.icon.setAnchor(new BMap.Size(0,0));
-                markerStyle.icon.setPath(eval(shape));
+                selectSet.symbolScale = 1.2;
+                markerStyleOptions.icon.setScale(1.2);
+                if(shape == "BMap_Symbol_SHAPE_POINT"&&selectSet.shape1!=0){//二次点击第一个（默认的图形）
+                   markerStyle.icon.setAnchor(new BMap.Size(-2,-2));
+                }
+                markerStyle.icon.setPath(eval(shape)); 
             }
         }
         /*加载所有的多边形*/
@@ -813,6 +821,9 @@
                                 if(styleOpt.symbolType){
                                     var shape = styleOpt.symbolType;
                                     changeMarkerStyleByShape(shape,newMarkerStyleOptions);
+                                }
+                                if(styleOpt.scale){
+                                    newMarkerStyleOptions.icon.setScale(styleOpt.scale);
                                 }
                         
                             }
@@ -942,14 +953,18 @@
                   top = parseInt(target.style['top']),
                   w = parseInt(target.style['width']),
                   h = parseInt(target.style['height']);
-            if(w==25&&h==25){//矩形
-                pixel = new BMap.Pixel(left+15,top+15);
-            }else if(w==29&&h==28){//五角星
-                pixel = new BMap.Pixel(left+15,top+14);
+            if(w==21&&h==21){//矩形
+                pixel = new BMap.Pixel(left+13,top+12);
+            }else if(w==25&&h==23){//五角星
+                pixel = new BMap.Pixel(left+13,top+12);
             }else if(w==26&&h==26){//菱形
                 pixel = new BMap.Pixel(left+28,top+28);
-            }else{
-                pixel = new BMap.Pixel(left+11,top+30);
+            }else if(w==22&&h==31){//点
+                if(selectSet.shape1!=0){
+                    pixel = new BMap.Pixel(left+9,top+28);
+                }else{
+                    pixel = new BMap.Pixel(left+11,top+30);
+                }
             }
             newPoint = map.overlayPixelToPoint(pixel);
             console.log(pixel,newPoint);
@@ -1015,6 +1030,8 @@
                 myDrawingManagerObject.addEventListener('polygoncomplete', function(e) {
                     console.log(e);
                 });
+
+             getArea = null;
             });
 
             function closeOthers(whichIsOpen) {
@@ -1028,17 +1045,18 @@
                 }
             }
         }
-        /*搜索*/
+        /*输入地址信息获取坐标*/
         function searchByStationName() {
             var localSearch = new BMap.LocalSearch(map);
             localSearch.enableAutoViewport(); //允许自动调节窗体大小
             // map.clearOverlays(); //清空原来的标注
-            var keyword = document.getElementById("address").value;
+            var addressInput = document.getElementById("address"),
+                keyword = addressInput.value;
             if(!keyword) return;
             localSearch.setSearchCompleteCallback(function(searchResult) {
                 var poi = searchResult.getPoi(0);
                 document.getElementById("location").value = poi.point.lng + "," + poi.point.lat;
-                serchByPoint(poi.point, 'flag');
+                searchByPoint(poi.point,"flag");
                 marker = new BMap.Marker(new BMap.Point(poi.point.lng, poi.point.lat)); // 创建标注，为要查询的地方对应的经纬度
                 marker.enableDragging();
                 map.addOverlay(marker);
@@ -1053,17 +1071,49 @@
             localSearch.search(keyword, {
                 forceLocal: true
             });
+            addressInput = null;
         }
 
         function markerDrager(marker) {
             marker.addEventListener('dragend', function() {
                 document.getElementById("location").value = marker.point.lng + ',' + marker.point.lat;
                 // console.log(marker.getPostion());
-                serchByPoint(marker.point);
+                searchByPoint(marker.point);
             });
         }
+        /**
+         * [searchByPoint 通过坐标点获取地址信息]
+         * @param  {[BMap.Point]} point [坐标点]
+         * @param  {[Boolean]} isCnterAndRoom     [是否cnterAndRoom]
+         */
+        function getAddressByPoint(point, isCnterAndRoom,isReturn) {
+            if(isCnterAndRoom) map.centerAndZoom(point, 19);
+            var geoc = new BMap.Geocoder();
+            geoc.getLocation(point, function(rs) {
+                var addComp = rs.addressComponents;
+                document.getElementById("address").value =addComp.district+ addComp.street + addComp.streetNumber;
+                if(isReturn){
+                    console.log(isReturn,point,addComp,{
+                        province:addComp.province,
+                        city:addComp.city,
+                        district:addComp.district,
+                        town:rs.business,
+                        address:addComp.street + addComp.streetNumber
+                    });
+                    return {
+                        province:addComp.province,
+                        city:addComp.city,
+                        district:addComp.district,
+                        town:rs.business,
+                        address:addComp.street + addComp.streetNumber
+                    };
+                }else{
+                    return "";
+                }
+            });
 
-        function serchByPoint(point, f) {
+        }
+        function searchByPoint(point, f) {
             var arg = Array.prototype.slice.apply(arguments);
             map.centerAndZoom(point, 19);
             var geoc = new BMap.Geocoder();
@@ -1105,7 +1155,7 @@
                 e.marker.enableDragging();
                 markerDrager(e.marker);
                 var markerPoint = e.marker.point;
-                serchByPoint(markerPoint);
+                searchByPoint(markerPoint);
                 document.getElementById("location").value = markerPoint.lng + ',' + markerPoint.lat;
 
             });
@@ -1147,10 +1197,13 @@
                 var drawingType = drawingObj[i].drawingMode,
                     geoJson;
                 if (drawingType == "circle") {
-
+                    return;
                 } else if (drawingType == "marker") {
                     var pt = drawingObj[i].overlay.point;
                     geoJson = pt.lng+","+pt.lat;
+
+                    // postData.address=JSON.stringify(getAddressByPoint(new BMap.Point(pt.lng,pt.lat), false,true));//异步的
+                    
                     var fillColor = markerStyleOptions.icon.style.fillColor,
                     strokeColor = markerStyleOptions.icon.style.strokeColor,
                     scale = markerStyleOptions.icon.style.scale,
@@ -1160,6 +1213,7 @@
                         scale:selectSet.symbolScale,
                         symbolType:selectSet.symbolType
                     };
+                    postData.shape = selectSet.symbolType;
                     postData.styleOptions = JSON.stringify(styleOptions1);//上传数据加入样式
                 } else {
                     var styleOptions2 = {strokeColor:styleOptions.strokeColor};
@@ -1228,6 +1282,9 @@
         });
         $('body').on('click', '#select-shape input', function(event) {
             var ind = $(this).index();
+            if(ind==1&&selectSet.radioInd2!=0){
+                selectSet.shape1++;//第一个默认的形状被点击了两次
+            }
             selectSet.radioInd2 = ind-1;
             if(!!$.trim($(this).val())){
                 var shape = $.trim($(this).val())||"BMap_Symbol_SHAPE_POINT";
