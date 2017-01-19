@@ -186,7 +186,7 @@
     #myPosition:hover{
         cursor: pointer;
     }
-    #selectStyle{
+    #select-pane{
         display: none;
         position: absolute;
         right: 35px;
@@ -194,6 +194,9 @@
         padding: 8px;
         background-color: #f5f5f5;
         z-index: 99999;
+    }
+    #select-style{
+        margin-bottom: 8px;
     }
     #map-pane{
         display: none;
@@ -392,14 +395,25 @@
             <img id="myPosition" src="<?php echo AJ_PATH;?>file/image/myPosition.png" alt="位置" />
             <img id="screen-ctl" class="fullscreen" src="<?php echo AJ_PATH;?>file/image/fullscreen.png" alt="全屏" />
         </div>
-        <div id="selectStyle">
-            <p>选择颜色</p>
-            <input type="radio" value="red" name="selectStyle">红色
-            <input type="radio" value="yellow" name="selectStyle">黄色
-            <input type="radio" value="blue" name="selectStyle">蓝色
-            <input type="radio" value="pink" name="selectStyle">粉红色
-            <input type="radio" value="purple" name="selectStyle">紫色
-            <input type="radio" value="white" name="selectStyle">白色
+        <div id="select-pane">
+            <div id="select-style">
+                <p>选择颜色</p>
+                <input type="radio" value="red" name="select-style">红色
+                <input type="radio" value="yellow" name="select-style">黄色
+                <input type="radio" value="blue" name="select-style">蓝色
+                <input type="radio" value="pink" name="select-style">粉红色
+                <input type="radio" value="purple" name="select-style">紫色
+                <input type="radio" value="white" name="select-style">白色
+            </div>
+            <div id="select-shape">
+                <p>选择点形状</p>
+                <input type="radio" value="BMap_Symbol_SHAPE_CIRCLE" name="select-shape">定位点
+                <input type="radio" value="BMap_Symbol_SHAPE_RECTANGLE" name="select-shape">矩形
+                <input type="radio" value="BMap_Symbol_SHAPE_RHOMBUS" name="select-shape">菱形
+                <input type="radio" value="BMap_Symbol_SHAPE_STAR" name="select-shape">五角星
+                <input type="radio" value="BMap_Symbol_SHAPE_BACKWARD_CLOSED_ARROW" name="select-shape">箭头
+                <input type="radio" value="BMap_Symbol_SHAPE_PLANE" name="select-shape">飞机
+            </div>
         </div>
     </div>
     <script src="http://libs.baidu.com/jquery/1.9.0/jquery.min.js"></script>
@@ -467,7 +481,7 @@
                 strokeOpacity: 0.8, //边线透明度，取值范围0 - 1。
                 fillOpacity: 0, //填充的透明度，取值范围0 - 1。
                 strokeStyle: 'solid' //边线的样式，solid或dashed。
-            },marker,markerStyleOptions={
+            },marker,markerStyleOptions={//绘制的点样式，该样式会改变
                 icon:new BMap.Symbol(BMap_Symbol_SHAPE_POINT, {
                     // anchor: jsonIcon.l, //位置偏移
                     scale: 1.2, //1.5, //图标缩放大小
@@ -476,7 +490,7 @@
                     fillOpacity: 1 //填充透明度
                 })
             },
-            markerOpt = {
+            markerOpt = {//定位点使用
                 icon: new BMap.Symbol(BMap_Symbol_SHAPE_BACKWARD_CLOSED_ARROW, {
                     scale: 1.2,
                     strokeWeight: 1,
@@ -484,11 +498,13 @@
                     fillColor: 'blue',
                     fillOpacity: 0.8
                 })
-            },
+            },selectSet={},
         baseNum=1000000,//opacity*baseNum就是id信息
-        overlays = [],
-        drawingObj = [],
-        map;
+        overlays = [], drawingObj = [], map;
+        selectSet.radioInd1 = 0,selectSet.radioInd2 = 0,selectSet.radioColor = "red",//默认颜色
+            selectSet.symbolType = "BMap_Symbol_SHAPE_POINT",selectSet.symbolScale = "1.2",
+            selectSet.starPath = "M1.281866564586093,10.091353266867403 L9.81234759469662,10.091353266867403 L12.448331873830627,1.9874338336331738 L15.084317651818987,10.091353266867403 L23.614797183075044,10.091353266867403 L16.71350568986501,15.099793585352003 L19.349626364749437,23.203713018586193 L12.448331873830627,18.195136304382387 L5.54703888176594,23.203713018586193 L8.1831603060779,15.099793585352003 L1.281866564586093,10.091353266867403 z",
+            selectSet.rectPath = "M1,1 L1,20 L20,20 L20 1 z ";
         //切换地图模块
         function outOfChina(lat, lng) {
             if ((lng < 72.004) || (lng > 137.8347)) {
@@ -755,6 +771,22 @@
             var markerClusterer = clusterStyle("dituContent",500,markers);
             
         }
+        /*根据形状类型改变markerStyle*/
+        function changeMarkerStyleByShape(shape,markerStyle){
+            if(shape=="BMap_Symbol_SHAPE_STAR"){
+                // selectSet.symbolScale = 16;
+                // markerStyleOptions.icon.setScale(16);
+                markerStyle.icon.setPath(selectSet.starPath);
+                markerStyle.icon.setAnchor(new BMap.Size(12,12));
+            }else if(shape = "BMap_Symbol_SHAPE_RECTANGLE"){
+                markerStyle.icon.setPath(selectSet.rectPath);
+                markerStyle.icon.setAnchor(new BMap.Size(12,12));
+            }
+            else{
+                // markerStyle.icon.setAnchor(new BMap.Size(0,0));
+                markerStyle.icon.setPath(eval(shape));
+            }
+        }
         /*加载所有的多边形*/
         function loadAllOverlays(map){
             var simpleMarkers=[]
@@ -779,6 +811,10 @@
                                 var styleOpt = JSON.parse('{$v['styleOptions']}');
                                 if(styleOpt.fillColor){ newMarkerStyleOptions.icon.setFillColor(styleOpt.fillColor);}
                                 if(styleOpt.strokeColor){ newMarkerStyleOptions.icon.setStrokeColor(styleOpt.strokeColor);}//strokeColor和fillColor 一样
+                                if(styleOpt.symbolType){
+                                    var shape = styleOpt.symbolType;
+                                    changeMarkerStyleByShape(shape,newMarkerStyleOptions);
+                                }
                         
                             }
                             var marker1 = new BMap.Marker(pot,newMarkerStyleOptions||markerStyleOptions);
@@ -1100,9 +1136,12 @@
                     geoJson = pt.lng+","+pt.lat;
                     var fillColor = markerStyleOptions.icon.style.fillColor,
                     strokeColor = markerStyleOptions.icon.style.strokeColor,
+                    scale = markerStyleOptions.icon.style.scale,
                     styleOptions1 = {
                         fillColor:fillColor,
-                        strokeColor:strokeColor
+                        strokeColor:strokeColor,
+                        scale:selectSet.symbolScale,
+                        symbolType:selectSet.symbolType
                     };
                     postData.styleOptions = JSON.stringify(styleOptions1);//上传数据加入样式
                 } else {
@@ -1145,27 +1184,44 @@
         }
         /*选择颜色*/
         $('.BMapLib_marker,.BMapLib_circle,.BMapLib_polyline,.BMapLib_polygon,.BMapLib_rectangle').hover(function() {
-            $('#selectStyle').css('display', 'block');
+            $('#select-pane').css('display', 'block');
+            $('#select-style input:radio').eq(selectSet.radioInd1).prop('checked', true);
+            $('#select-shape input:radio').eq(selectSet.radioInd2).prop('checked', true);
         }, function() {
         });
         $('body').on('click', '#top-bar, #stylized ,.dituContent, .BMapLib_Drawing_panel', function(event) {
-            if($('#selectStyle').css('display')!="none")
-                $('#selectStyle').css('display', 'none');
+            if($('#select-pane').css('display')!="none")
+                $('#select-pane').css('display', 'none');
         });
-        $('body').on('click', '#selectStyle input', function(event) {
+        $('body').on('click', '#select-style input', function(event) {
             var ind = $(this).index();
-            if(!!$(this).val()){
-                var color = $(this).val()||"red";
+            selectSet.radioInd1 = ind-1;
+            if(!!$.trim($(this).val())){
+                var color = $.trim($(this).val())||"red";
                 markerStyleOptions.icon.setFillColor(color);
                 markerStyleOptions.icon.setStrokeColor(color);
                 //共用的包括矩形多边形等
                 styleOptions.strokeColor = color;
+                selectSet.radioColor = color;
+                console.info(markerStyleOptions);
             }
-            // $('#selectStyle input:radio').eq(ind-1).attr('checked', true);
             setTimeout(function(){
-                $('#selectStyle input:radio').eq(ind-1).prop('checked', true);
+                $('#select-style input:radio').eq(ind-1).prop('checked', true);
             },0);
-            // $(this).prop('checked', true);
+        });
+        $('body').on('click', '#select-shape input', function(event) {
+            var ind = $(this).index();
+            selectSet.radioInd2 = ind-1;
+            if(!!$.trim($(this).val())){
+                var shape = $.trim($(this).val())||"BMap_Symbol_SHAPE_POINT";
+                console.log($.trim($(this).val()),shape);
+                selectSet.symbolType = shape;
+                if(!selectSet.radioColor) selectSet.radioColor = "red";
+                changeMarkerStyleByShape(shape,markerStyleOptions);
+            }
+            setTimeout(function(){
+                $('#select-shape input:radio').eq(ind-1).prop('checked', true);
+            },0);
         });
         function clearInput() {
             // map.centerAndZoom('上海市',12);
