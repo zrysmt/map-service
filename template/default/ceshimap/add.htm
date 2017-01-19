@@ -411,8 +411,8 @@
                 <input type="radio" value="BMap_Symbol_SHAPE_RECTANGLE" name="select-shape">矩形
                 <input type="radio" value="BMap_Symbol_SHAPE_RHOMBUS" name="select-shape">菱形
                 <input type="radio" value="BMap_Symbol_SHAPE_STAR" name="select-shape">五角星
-                <input type="radio" value="BMap_Symbol_SHAPE_BACKWARD_CLOSED_ARROW" name="select-shape">箭头
-                <input type="radio" value="BMap_Symbol_SHAPE_PLANE" name="select-shape">飞机
+                <!-- <input type="radio" value="BMap_Symbol_SHAPE_BACKWARD_CLOSED_ARROW" name="select-shape">箭头 -->
+                <!-- <input type="radio" value="BMap_Symbol_SHAPE_PLANE" name="select-shape">飞机 -->
             </div>
         </div>
     </div>
@@ -776,13 +776,12 @@
             if(shape=="BMap_Symbol_SHAPE_STAR"){
                 // selectSet.symbolScale = 16;
                 // markerStyleOptions.icon.setScale(16);
-                markerStyle.icon.setPath(selectSet.starPath);
-                markerStyle.icon.setAnchor(new BMap.Size(12,12));
-            }else if(shape = "BMap_Symbol_SHAPE_RECTANGLE"){
+                markerStyle.icon.setPath(selectSet.starPath);//path 是 25左右*25左右，每个path的width和height不要相同，后面会根据这两个值判断绘制的类型
+                markerStyle.icon.setAnchor(new BMap.Size(12.5,12.5));
+            }else if(shape == "BMap_Symbol_SHAPE_RECTANGLE"){
                 markerStyle.icon.setPath(selectSet.rectPath);
-                markerStyle.icon.setAnchor(new BMap.Size(12,12));
-            }
-            else{
+                markerStyle.icon.setAnchor(new BMap.Size(12.5,12.5));
+            }else{
                 // markerStyle.icon.setAnchor(new BMap.Size(0,0));
                 markerStyle.icon.setPath(eval(shape));
             }
@@ -847,6 +846,7 @@
         function drawingManager(map) {
             var overlaycomplete = function(e) {
                 drawingObj.push(e);
+                console.warn(e);
                 addOverlay2DB(drawingObj);//完成之后自动提交
                 overlays.push(e.overlay);
                 if(e.overlay.point){
@@ -912,12 +912,8 @@
                 //marker
                 if (event.type == "click" && nodeName == "SPAN" && event.target.className=="BMap_Marker BMap_noprint") {
                     className = "BMap_Marker BMap_noprint";
-                    var left = parseInt(event.target.style['left']),
-                     top = parseInt(event.target.style['top']);
-                    var pixel = new BMap.Pixel(left+11,top+30);
-                    newPoint = map.overlayPixelToPoint(pixel);
-                    newPointStr = newPoint.lng+","+newPoint.lat;
-                    console.log(pixel,newPoint,newPointStr);
+                    console.info(event,event.target);
+                    newPointStr = getPonitStr(event.target);
                 }
                 //是绘制的图形，按住delete删除
                 if (event.type=="keydown" && keyCode == "46") {
@@ -926,9 +922,8 @@
                        map.removeOverlay(pathTarget);
                        deleteOverlayFromDB("path",pathId); 
                     }else if( className == "BMap_Marker BMap_noprint"){//是点
-                       console.log("delete marker:"+keyCode);
                        var zIndex = $(pathTarget).css("z-index");
-                       console.warn(zIndex);
+                       console.log(zIndex);
                        $('body').find("span.BMap_Marker").filter(function(){
                            if($(this).css("z-index")== zIndex) $(this).css('display', 'none');
                         });
@@ -937,6 +932,28 @@
                 }
                 // }
             });
+        }
+        /**
+         * [getPonitStr 根据点击的marker获取坐标，作为删除依据字段]
+         * @param  {[HTMLCollection]} target [点击的marker对象]
+         */
+        function getPonitStr(target){
+            var pixel,left = parseInt(target.style['left']),
+                  top = parseInt(target.style['top']),
+                  w = parseInt(target.style['width']),
+                  h = parseInt(target.style['height']);
+            if(w==25&&h==25){//矩形
+                pixel = new BMap.Pixel(left+15,top+15);
+            }else if(w==29&&h==28){//五角星
+                pixel = new BMap.Pixel(left+15,top+14);
+            }else if(w==26&&h==26){//菱形
+                pixel = new BMap.Pixel(left+28,top+28);
+            }else{
+                pixel = new BMap.Pixel(left+11,top+30);
+            }
+            newPoint = map.overlayPixelToPoint(pixel);
+            console.log(pixel,newPoint);
+            return newPoint.lng+","+newPoint.lat;
         }
         /**
          * [deleteOverlayFromDB 从数据库中删除]
