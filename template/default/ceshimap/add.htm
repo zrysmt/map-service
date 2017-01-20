@@ -72,7 +72,14 @@
     .getloc-btn:hover {
         cursor: pointer;
     }
-    
+    #ctl-detail-info{
+        float: right;
+        margin-top: 9px;
+        padding: 0 8px;
+    }
+    #ctl-detail-info:hover{
+        cursor: pointer;
+    }
     #stylized .sub {
         float: right;
         width: 70px;
@@ -89,7 +96,7 @@
     
     #getPos {
         position: relative;
-        top: 3px;
+        top: 5px;
         /*left: 400px;*/
         /*margin-top: 10px;*/
     }
@@ -342,7 +349,7 @@
             <span id="back"><a href="<?php echo AJ_PATH;?>">返回首页</a></span>
         </div>
         <div id="toolbar">
-            <img id="change-map" title="切换地图" src="<?php echo AJ_PATH;?>file/image/changemap.png" alt="切换地图" />
+            <img id="change-map" title="切换地图(M)" src="<?php echo AJ_PATH;?>file/image/changemap.png" alt="切换地图" />
             <div id="map-pane">
                 <span class="baidumap selected-map">&nbsp;百度地图</span>
                 <span class="gaodemap">&nbsp;高德地图</span>
@@ -357,7 +364,7 @@
             <input type="text" name="address" id="address" placeholder="请输入地址信息..." value="" />
             <input type="button" value="获取坐标" class="getloc-btn"/>
             <!-- <img src="<?php echo AJ_PATH;?>file/image/postion.png" id="getPos" alt="定位" title="定位在地图上获取坐标信息"> -->
-            <img src="<?php echo AJ_PATH;?>file/image/postion.png" id="getPos" alt="定位" title="定位在地图上获取坐标信息">
+            <img src="<?php echo AJ_PATH;?>file/image/position.png" width="22" height="22" id="getPos" alt="定位" title="定位在地图上获取坐标信息">
             <label id="pos-label">坐标:
             </label>
             <input type="text" name="location" id="location" placeholder="输入地址信息,点击获取地址后获取" value="" />
@@ -370,21 +377,23 @@
                 {/loop}
             </select>
             <img src="<?php echo AJ_PATH;?>file/image/seting.png" id="rentSetting" alt="设置" title="修改,添加出租信息">
-            <!-- <div class="spacer"></div>
-            <label class="province">省份:</label>
-            <input type="text" id="province" class="input-small province" />
-            <label class="city">&nbsp&nbsp城市:</label>
-            <input type="text" id="city" class="input-small city" />
-            <label class="district">&nbsp&nbsp区:</label>
-            <input type="text" id="district" class="input-small district" />
-            <label class="town">&nbsp&nbsp镇:</label>
-            <input type="text" id="town" class="input-small town" />
-            <label class="sperate-line">|</label>
-            <label>&nbsp&nbsp厂房面积:</label>
-            <input type="text" id="area" class="input-small" />
-            <label>&nbsp&nbsp售价:</label>
-            <input type="text" id="sellingPrice" class="input-small" /> -->
             <input class="sub" id="sub" type="button" value="提交" />
+            <img src="<?php echo AJ_PATH;?>file/image/down.png" width="20" height="20" alt="展开" id="ctl-detail-info"/>
+            <div id="detail-info" style="display:none">
+                <label class="province">省份:</label>
+                <input type="text" id="province" class="input-small province" />
+                <label class="city">&nbsp&nbsp城市:</label>
+                <input type="text" id="city" class="input-small city" />
+                <label class="district">&nbsp&nbsp区:</label>
+                <input type="text" id="district" class="input-small district" />
+                <label class="town">&nbsp&nbsp镇:</label>
+                <input type="text" id="town" class="input-small town" />
+                <label class="sperate-line">|</label>
+                <label>&nbsp&nbsp厂房面积:</label>
+                <input type="text" id="area" class="input-small" />
+                <label>&nbsp&nbsp售价:</label>
+                <input type="text" id="sellingPrice" class="input-small" />
+            </div>
         </form>
     </div>
     <div id="rentSettingDiv"></div>
@@ -438,7 +447,6 @@
     for (var i = 0; i < dituContent.length; i++) {
         dituContent[i].style.height = totalHeight - stylizedHight - topBarHeight -5 +"px";
     }
-    console.log(dituContent);
     window.onresize = debounce(function(){
         doResize();
     },500,false);
@@ -450,9 +458,6 @@
         for (var i = 0; i < dituContent.length; i++) {
             dituContent[i].style.height = totalHeight - stylizedHight - topBarHeight -5 +"px";
         }
-
-        console.log(totalHeight,stylizedHight,topBarHeight,totalHeight - stylizedHight - topBarHeight -15 +"px",dituContent.style.height);
-
     }
     function debounce(func,threshold,execAsap,fun){
         var timeout;
@@ -537,13 +542,15 @@
                        $(this).addClass('selected-map');
                        //切换地图
                        console.log("切换地图");
-                       if($(this).hasClass('gaodemap')){
+                       if($(this).hasClass('gaodemap')){//切换至高德地图
                            var bMapInfo = self.getMapInfo("bMap",map);
                            var gcjPos = self.bd2gcj(bMapInfo.center.lat,bMapInfo.center.lng);
                            $('#dituContent').css('display', 'none');
                            $('#gaodeContent').css('display', 'block');
+                           $('.BMapLib_Drawing').css('display', 'block');
+                           self.isLoadOverlays = false;
                            self.appendAMap(bMapInfo,gcjPos);
-                       }else{//百度地图
+                       }else{//切换至百度地图
                            $('#dituContent').css('display', 'block');
                            $('#gaodeContent').css('display', 'none');
                            var aMapInfo = self.getMapInfo("aMap",self.aMap);
@@ -558,6 +565,39 @@
                        }
                     } 
                     return;    
+                });
+                self.changeMapByKey();
+            },
+            //快捷键切换地图
+            changeMapByKey:function(){
+                var self = this;
+                var currentMap = $.trim($("#map-pane .selected-map").eq(0).text())||"百度地图";
+                $('body').on('keypress',function(event) {
+                    event = event||window.event;
+                    console.log("keyCode",event.keyCode,event.key,event.which);
+                    if(event.keyCode=="109"||event.key=="m"||event.which=="109"){//M键
+                        if(currentMap=="百度地图"){//切换到高德地图
+                           currentMap ="高德地图";
+                           var bMapInfo = self.getMapInfo("bMap",map);
+                           var gcjPos = self.bd2gcj(bMapInfo.center.lat,bMapInfo.center.lng);
+                           $('#dituContent').css('display', 'none');
+                           $('#gaodeContent').css('display', 'block');
+                           $('.BMapLib_Drawing').css('display', 'block');
+                           self.appendAMap(bMapInfo,gcjPos);
+                        }else if(currentMap=="高德地图"){
+                           currentMap ="百度地图";
+                           $('#dituContent').css('display', 'block');
+                           $('#gaodeContent').css('display', 'none');
+                           var aMapInfo = self.getMapInfo("aMap",self.aMap);
+                           var bdPos = self.gcj2bd(aMapInfo.center.lat,aMapInfo.center.lng);
+                           var pt = new BMap.Point(bdPos.lng,bdPos.lat);
+                           if($('#dituContent').css('display')=="block"){
+                                setTimeout(function(){
+                                  map.centerAndZoom(pt,aMapInfo.zoom);
+                                },100);
+                           }
+                        }
+                    }
                 });
             },
             appendAMap:function(mapInfo,gcjPos){
@@ -600,6 +640,7 @@
                         } 
                         aMap.addControl(type);
                     });
+                    /*if(!self.isLoadOverlays) */self._loadAllOverlays2GD(aMap);
                     
                 }
                 var head = document.getElementsByTagName('head')[0];
@@ -613,6 +654,113 @@
                     initAMap();
                 }
                 head.appendChild(script);
+            },
+             /**
+             * 限制点聚合的样式
+             * @param  {[String]} dom     [监控改dom的宽度]
+             * @param  {[Number]} width   [小于改宽度被视为手机端]
+             * @param  {[Array]} markers [点集合数组]
+             */
+            addCluster:function(dom,width,markers){
+                var map=this.aMap,width = width||500,dom = dom||"dituContent",containWidth = parseFloat($("."+dom).css('width'));
+                if( containWidth < width){
+                    map.plugin(["AMap.MarkerClusterer"], function() {
+                        return cluster = new AMap.MarkerClusterer(map, markers,{girdSize:500,maxZoom:16,isAverangeCenter:true});
+                    });
+                }else if(containWidth < 850){
+                    map.plugin(["AMap.MarkerClusterer"], function() {
+                        return cluster = new AMap.MarkerClusterer(map, markers,{girdSize:500,maxZoom:14,isAverangeCenter:true});
+                    });
+                }else{
+                    map.plugin(["AMap.MarkerClusterer"], function() {
+                        return cluster = new AMap.MarkerClusterer(map, markers,{girdSize:500,maxZoom:11,isAverangeCenter:true});
+                    });
+                }
+            },
+            _loadAllOverlays2GD:function(map){
+                var self=this,simpleMarkers=[],
+                 markers = [],location,potObj,marker1;
+                //============添加详细信息点===================
+                {loop $markers $k $v}
+                    location = '{$v['location']}'.split(',');
+                    if(location.length == 2){
+                        potObj = self.bd2gcj(location[1],location[0]);
+                        marker1 = new AMap.Marker({
+                            position:[potObj.lng,potObj.lat]
+                        });
+                        markers.push(marker1);
+                    }
+                {/loop}
+                var markerClusterer = self.addCluster("dituContent",500,markers);
+                //=================================================
+                {loop $overlays $k $v}
+                  if(!!'{$v['geoJson']}'){
+                    var drawingType = "{$v['drawingType']}",marker;
+                    switch(drawingType){
+                        case "marker":
+                            var location = '{$v['geoJson']}',
+                            p0 = parseFloat(location.split(',')[0]),
+                            p1 = parseFloat(location.split(',')[1]);
+                            if(!p0&&!p1) return;
+                            var potObj = self.bd2gcj(p1,p0);
+                            marker1 = new AMap.Marker({
+                                icon:"<?php echo AJ_PATH;?>file/image/markers/red-marker.png",
+                                position:[potObj.lng,potObj.lat]
+                            });
+                            
+                            if(!!'{$v['styleOptions']}'){
+                                var styleOpt = JSON.parse('{$v['styleOptions']}');
+                                if(styleOpt.fillColor){ 
+                                    var iconUrl = "<?php echo AJ_PATH;?>file/image/markers/"+styleOpt.fillColor+"-marker.png";
+                                    marker1.setIcon(iconUrl);
+                                }
+                                 //strokeColor和fillColor 一样
+                                /*if(styleOpt.symbolType){
+                                    var shape = styleOpt.symbolType;
+                                    changeMarkerStyleByShape(shape, newMarkerStyleOptions);
+                                }
+                                if(styleOpt.scale){
+                                    newMarkerStyleOptions.icon.setScale(styleOpt.scale);
+                                }*/
+                            }
+                            simpleMarkers.push(marker1);
+                            break;
+                        case "polygon":
+                        case "rectangle":
+                        case "polylin":
+                            var geoJson = JSON.parse('{$v['geoJson']}'),pathArr=[];
+                             var styleOptions = {
+                                strokeColor: "red", 
+                                fillColor: "red", 
+                                strokeWeight: 2, 
+                                strokeOpacity: 0.8,
+                                fillOpacity: 0, 
+                                strokeStyle: 'solid'
+                            };
+                            styleOptions.fillOpacity = +'{$v['id']}'/baseNum;//存放id
+                            if('{$v['styleOptions']}'){
+                                var styleOpt = JSON.parse('{$v['styleOptions']}');
+                                if(styleOpt.strokeColor) styleOptions.strokeColor = styleOpt.strokeColor;
+                            }
+                            for (var i = 0; i < geoJson.length; i++) {
+                                var geoJsoni = geoJson[i];
+                                var gdGeoJson = self.bd2gcj(geoJsoni.lat,geoJsoni.lng);
+                                pathArr.push([gdGeoJson.lng,gdGeoJson.lat]);
+                            }
+                            styleOptions.path = pathArr;
+                            if(drawingType=="polylin"){
+                                var polyline = new AMap.Polyline(styleOptions);
+                                polyline.setMap(map);
+                            }else{
+                                var poly = new AMap.Polygon(styleOptions);
+                                poly.setMap(map);
+                            }
+                            break;
+                    }
+                  }
+                {/loop}
+                var markerClusterer = self.addCluster("dituContent",500, simpleMarkers);
+                // self.isLoadOverlays = true;
             },
             getMapInfo:function(mapName,map){
                if(mapName=="bMap"){
@@ -657,7 +805,8 @@
         //初始化
         function initMap(){
             map = new BMap.Map("dituContent");
-            map.centerAndZoom("上海", 12);
+            var point = new BMap.Point(121.482537,31.118406);
+            map.centerAndZoom(point, 12);
             map.setMapType(BMAP_HYBRID_MAP);
             map.enableInertialDragging(); //启用地图惯性拖拽，默认禁用
             map.enableContinuousZoom(); //启用连续缩放效果，默认禁用
@@ -796,60 +945,57 @@
         }
         /*加载所有的多边形*/
         function loadAllOverlays(map){
-            var simpleMarkers=[]
+            var simpleMarkers=[],drawingType,geoJson,styleOptions,location,pot,newMarkerStyleOptions,styleOpt,marker1,poly,polylin;
             {loop $overlays $k $v}
-                var drawingType = "{$v['drawingType']}";
+              if('{$v['geoJson']}'){
+                drawingType = "{$v['drawingType']}";
+                styleOptions = { strokeColor: "red", fillColor: "red", strokeWeight: 2, strokeOpacity: 0.8, fillOpacity: 0, strokeStyle: 'solid' };
                 switch(drawingType){
                     case "marker":
-                        if(!!'{$v['geoJson']}'){
-                            var location = '{$v['geoJson']}',
-                            p0 = parseFloat(location.split(',')[0]),
-                            p1 = parseFloat(location.split(',')[1]);
-                            if(p0&&p1) pot = new BMap.Point(p0,p1);
-                            if(!!'{$v['styleOptions']}'){
-                                var newMarkerStyleOptions = {
-                                     icon:new BMap.Symbol(BMap_Symbol_SHAPE_POINT, {
-                                          scale: 1.2, //1.5, //图标缩放大小
-                                          fillColor: "red", //填充颜色
-                                          strokeColor: "red",
-                                          fillOpacity: 1 //填充透明度
-                                     })
-                                };
-                                var styleOpt = JSON.parse('{$v['styleOptions']}');
-                                if(styleOpt.fillColor){ newMarkerStyleOptions.icon.setFillColor(styleOpt.fillColor);}
-                                if(styleOpt.strokeColor){ newMarkerStyleOptions.icon.setStrokeColor(styleOpt.strokeColor);}//strokeColor和fillColor 一样
-                                if(styleOpt.symbolType){
-                                    var shape = styleOpt.symbolType;
-                                    changeMarkerStyleByShape(shape,newMarkerStyleOptions);
-                                }
-                                if(styleOpt.scale){
-                                    newMarkerStyleOptions.icon.setScale(styleOpt.scale);
-                                }
-                        
+                        location = '{$v['geoJson']}'.split(',');
+                        pot = new BMap.Point(parseFloat(location[0]),parseFloat(location[1]));
+                        if(!!'{$v['styleOptions']}'){
+                            newMarkerStyleOptions = {
+                                 icon:new BMap.Symbol(BMap_Symbol_SHAPE_POINT, { scale: 1.2, fillColor: "red", strokeColor: "red", fillOpacity: 1 })
+                            };
+                            styleOpt = JSON.parse('{$v['styleOptions']}');
+                            if(styleOpt.fillColor){ newMarkerStyleOptions.icon.setFillColor(styleOpt.fillColor);}
+                            if(styleOpt.strokeColor){ newMarkerStyleOptions.icon.setStrokeColor(styleOpt.strokeColor);}//strokeColor和fillColor 一样
+                            if(styleOpt.symbolType){
+                                changeMarkerStyleByShape(styleOpt.symbolType,newMarkerStyleOptions);
                             }
-                            var marker1 = new BMap.Marker(pot,newMarkerStyleOptions||markerStyleOptions);
-                            // map.addOverlay(marker1);
-                            simpleMarkers.push(marker1);
+                            if(styleOpt.scale){
+                                newMarkerStyleOptions.icon.setScale(styleOpt.scale);
+                            }
                         }
-                        
+                        marker1 = new BMap.Marker(pot,newMarkerStyleOptions||markerStyleOptions);
+                        simpleMarkers.push(marker1);
                         break;
                     case "polygon":
                     case "rectangle":
-                        if('{$v['geoJson']}'){
-                            var geoJson = JSON.parse('{$v['geoJson']}');
-                            // styleOptions["data-id"] = '{$v['id']}';
-                            styleOptions.fillOpacity = '{$v['id']}'/baseNum;//存放id
-                            if('{$v['styleOptions']}'){
-                                var styleOpt = JSON.parse('{$v['styleOptions']}');
-                                if(styleOpt.strokeColor) styleOptions.strokeColor = styleOpt.strokeColor;
-                            }
-                            var poly = new BMap.Polygon(geoJson,styleOptions);
-                            map.addOverlay(poly);
+                        geoJson = JSON.parse('{$v['geoJson']}');
+                        styleOptions.fillOpacity = (+'{$v['id']}')/baseNum;//存放id
+                        if('{$v['styleOptions']}'){
+                            var styleOpt = JSON.parse('{$v['styleOptions']}');
+                            if(styleOpt.strokeColor) styleOptions.strokeColor = styleOpt.strokeColor;
                         }
+                        poly = new BMap.Polygon(geoJson,styleOptions);
+                        map.addOverlay(poly);
                         break;
                     case "polylin":
+                        geoJson = JSON.parse('{$v['geoJson']}');
+                        var options= { strokeColor: "red", strokeWeight: 2, strokeOpacity: 0.8, strokeStyle: 'solid' };
+
+                        // styleOptions.fillOpacity = +'{$v['id']}'/baseNum;//存放id
+                        if('{$v['styleOptions']}'){
+                            var styleOpt = JSON.parse('{$v['styleOptions']}');
+                            if(styleOpt.strokeColor) options.strokeColor = styleOpt.strokeColor;
+                        }
+                        polylin = new BMap.Polylin(geoJson,options);
+                        map.addOverlay(polylin);
                         break;
                 }
+            }
             {/loop}
             var markerClusterer = clusterStyle("dituContent",500,simpleMarkers);
         }
@@ -892,14 +1038,14 @@
             //添加鼠标绘制工具监听事件，用于获取绘制结果
             myDrawingManagerObject.addEventListener('overlaycomplete', overlaycomplete);
 
-            var nodeName = "",pathTarget="",pathId="",className="",newPoint={},newPointStr="";
+            var nodeName = "",pathTarget="",pathId="",className="",newPoint={},newPointStr="",clickNum = 0;
             $('body').on('click keydown',/*".dituContent",*/ function(event) {
                 // event.preventDefault();
                 var keyCode = "",
                     event = event || window.event;
                 keyCode = event.keyCode;
                 /*if(event.type=="click"&&(event.toElement.id ==="stylized"||event.toElement.id ==="top-bar")) return;*/
-                // console.log(event);
+                console.log(event);
 
                 //撤销ctrl + Z
                 if (event.ctrlKey == true && keyCode == "90") {
@@ -913,7 +1059,11 @@
                 if (event.type == "click"){
                     nodeName = event.target.nodeName;
                     pathTarget = event.target;
+                    clickNum ++;
                 } 
+                setTimeout(function(){//一秒钟内点击才算双击
+                    clickNum = 0;
+                },1000);
                 if (event.type == "click" && nodeName == "path") {
                     pathId = pathTarget.attributes["fill-opacity"].nodeValue * baseNum;
                     console.log(pathId);
@@ -923,8 +1073,13 @@
                 //marker
                 if (event.type == "click" && nodeName == "SPAN" && event.target.className=="BMap_Marker BMap_noprint") {
                     className = "BMap_Marker BMap_noprint";
-                    console.info(event,event.target);
+                    // console.info(event,event.target);
                     newPointStr = getPonitStr(event.target);
+                    var point = new BMap.Point(newPointStr.split(',')[0],newPointStr.split(',')[1]);
+                    if(clickNum > 1){//多次点击
+                        console.log("双击");
+                        showRemarkInfoWindow(point,newPointStr);
+                    }
                 }
                 //是绘制的图形，按住delete删除
                 if (event.type=="keydown" && keyCode == "46") {
@@ -944,6 +1099,33 @@
                 // }
             });
         }
+        /**/
+        function showRemarkInfoWindow(point,newPointStr){
+            
+            var openInfoWindow = null,
+            content = '<div><input type="text" placeholder="填写信息，点击提交" id="remarks">'+
+            '<input type="button" id="submit-remarks" ptStr="'+newPointStr+'" value="提交">'+'</div>';
+            openInfoWindow = new BMap.InfoWindow(content, {
+                title  : "填写信息:",      //标题
+                width  : 200,             //宽度
+                height : 60,              //高度
+                enableMessage:true  //自动平移
+            });
+            map.openInfoWindow(openInfoWindow,point);
+        }
+        //没作用
+        $('body').on('click', '#submit-remarks', function(event) {
+             var value = $('#remarks').val();
+             console.log(value,$('#remarks').attr("newPointStr"));
+             $.post("<?php echo AJ_PATH;?>ceshimap/saveInfo2DB.php",{
+                  "value":value,
+                  "byField": $('#remarks').attr("newPointStr")
+              },function(data){
+                  if(data == "0"){
+                      alert("删除失败！");
+                  }
+              });
+         });
         /**
          * [getPonitStr 根据点击的marker获取坐标，作为删除依据字段]
          * @param  {[HTMLCollection]} target [点击的marker对象]
@@ -958,7 +1140,7 @@
             }else if(w==25&&h==23){//五角星
                 pixel = new BMap.Pixel(left+13,top+12);
             }else if(w==26&&h==26){//菱形
-                pixel = new BMap.Pixel(left+28,top+28);
+                pixel = new BMap.Pixel(left+13,top+13);
             }else if(w==22&&h==31){//点
                 if(selectSet.shape1!=0){
                     pixel = new BMap.Pixel(left+9,top+28);
@@ -1296,6 +1478,15 @@
             setTimeout(function(){
                 $('#select-shape input:radio').eq(ind-1).prop('checked', true);
             },0);
+        });
+        $('body').on('click', '#ctl-detail-info', function(event) {
+            if($('#detail-info').css('display')=="none"){
+                 $(this).attr('src', '<?php echo AJ_PATH;?>file/image/up.png');
+                 $('#detail-info').css('display', 'block');
+            }else{
+                $(this).attr('src', '<?php echo AJ_PATH;?>file/image/down.png');
+                 $('#detail-info').css('display', 'none');
+            }
         });
         function clearInput() {
             // map.centerAndZoom('上海市',12);

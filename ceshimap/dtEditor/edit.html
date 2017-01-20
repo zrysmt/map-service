@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>修改房源信息</title>
+    <title>21厂房网-修改厂房信息</title>
     <!-- DataTables CSS -->
     <link rel="stylesheet" type="text/css" href="http://cdn.datatables.net/1.10.7/css/jquery.dataTables.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.2.1/css/buttons.dataTables.min.css">
@@ -18,41 +18,34 @@
     
     #edit-top-bar {
         z-index: 999;
-        padding: 10px;
+        padding-top: 10px;
         color: #fff;
+        height: 40px;
         font-family: "Microsoft YaHei";
         font-size: 16px;
         background-color: #008B00;
     }
     
-    #gotoCeshimap {
+    #menus-bar{
         float: right;
-        margin-right: 20px;
-        margin-top: -9px;
+        margin-right: 16px;
+        display: inline-block;
+    }
+    #menus-bar span{
+        margin-left: 16px;
+        margin-top: -9px;   
         padding: 9px;
     }
-    
+    #menus-bar span:hover{
+        background-color: #00a000;
+    }
+    .menus-bar-click{
+        background-color: #00a000;
+    }
     #gotoCeshimap a,
     #addPage a {
         color: #fff;
         text-decoration: none;
-    }
-    
-    #addPage {
-        float: right;
-        margin-right: 40px;
-        margin-top: -9px;
-        padding: 9px;
-    }
-    
-    #addPage:hover,
-    #gotoCeshimap:hover {
-        background-color: #00a000;
-    }
-    
-    #back {
-        float: right;
-        margin-right: 20px;
     }
     
     #back a {
@@ -89,9 +82,12 @@
 <body>
     <div id="edit-top-bar">
         <span>&nbsp&nbsp修改厂房信息</span>
-        <span id="back"><a href="http://www.21changfang.com/">返回首页</a></span>
-        <span id="addPage"><a href="http://www.21changfang.com/ceshimap/add.php" target="blank">添加厂房</a> </span>
-        <span id="gotoCeshimap"><a href="http://www.21changfang.com/ceshimap/" target="blank">查看地图</a> </span>
+        <div id="menus-bar">
+            <span id="gotoCeshimap"><a href="http://www.21changfang.com/ceshimap/" target="blank">查看地图</a> </span>
+            <span id="addPage"><a href="http://www.21changfang.com/ceshimap/add.php" target="blank">添加厂房</a> </span>
+            <span id="editPage" class="menus-bar-click">修改房源</span>
+            <span id="back"><a href="http://www.21changfang.com/">返回首页</a></span>
+        </div>
     </div>
     <div class='maintenance'>
         <table id="myTable" class="display">
